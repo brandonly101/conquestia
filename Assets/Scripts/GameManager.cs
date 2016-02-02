@@ -45,6 +45,11 @@ public class GameManager : MonoBehaviour {
 		gameObject.AddComponent<GameStateBattle>().gameManager = this;
     }
 
+	public void ChangeScene(string new_scene) {
+		Application.LoadLevel (new_scene);
+
+	}
+
     // Update is called once per frame
 	void Update () {
 		
