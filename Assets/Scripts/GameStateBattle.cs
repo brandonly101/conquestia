@@ -16,7 +16,8 @@ public class GameStateBattle : MonoBehaviour {
 	int healthPlayer;
 	int healthEnemy;
 	GameObject GUIHealth;
-	Slider
+	Slider HealthBarPlayer;
+	Slider HealthBarEnemy;
 	List<GameObject> VPlayer = new List<GameObject>();
 	List<GameObject> VEnemy = new List<GameObject>();
 	List<GameObject> VHousesPlayer;
@@ -27,10 +28,14 @@ public class GameStateBattle : MonoBehaviour {
 		this.VHousesPlayer = gameManager.VHousesPlayer;
 		this.VHousesEnemy = gameManager.VHousesEnemy;
 
-		healthPlayer = 100;
-		healthEnemy = 100;
+		healthPlayer = 30;
+		healthEnemy = 30;
 
 		GUIHealth = Instantiate(CanvasHealthPrefab, transform.position, transform.rotation) as GameObject;
+		HealthBarPlayer = GUIHealth.transform.GetChild(0).gameObject.GetComponent<Slider>();
+		HealthBarEnemy = GUIHealth.transform.GetChild(1).gameObject.GetComponent<Slider>();
+		HealthBarPlayer.maxValue = healthPlayer;
+		HealthBarEnemy.maxValue = healthEnemy;
 	}
 	
 	// Update is called once per frame
@@ -42,8 +47,8 @@ public class GameStateBattle : MonoBehaviour {
 		manageVillagers();
 
 		// Change health
-		GUIHealth.transform.GetChild(0).gameObject.GetComponent<Slider>().value = healthPlayer;
-		GUIHealth.transform.GetChild(1).gameObject.GetComponent<Slider>().value = healthEnemy;
+		HealthBarPlayer.value = healthPlayer;
+		HealthBarEnemy.value = healthEnemy;
 	}
 
 	// Private functions.
