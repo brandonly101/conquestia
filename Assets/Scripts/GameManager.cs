@@ -6,9 +6,6 @@ public class GameManager : MonoBehaviour {
 
 	public static GameManager instance = null;
 
-	public GameObject VPrefabPlayer;
-	public GameObject VPrefabEnemy;
-
     const int PLAYER = 0;
 	const int ENEMY = 1;
 
@@ -46,8 +43,8 @@ public class GameManager : MonoBehaviour {
     }
 
 	public void ChangeScene(string new_scene) {
-		Application.LoadLevel (new_scene);
-
+		Application.LoadLevel(new_scene);
+		gameObject.AddComponent<GameStateBattle>().gameManager = this;
 	}
 
     // Update is called once per frame

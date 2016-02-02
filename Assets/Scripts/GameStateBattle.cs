@@ -1,30 +1,36 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
 public class GameStateBattle : MonoBehaviour {
 
-	GameObject VPrefabPlayer;
-	GameObject VPrefabEnemy;
-
-	List<GameObject> VPlayer = new List<GameObject>();
-	List<GameObject> VEnemy = new List<GameObject>();
-
-	List<GameObject> VHousesPlayer;
-	List<GameObject> VHousesEnemy;
-
-	int healthPlayer;
-	int healthEnemy;
-
 	// Reference to the singleton GameManager.
 	public GameManager gameManager;
 
+	public GameObject VPrefabPlayer;
+	public GameObject VPrefabEnemy;
+	public GameObject CanvasHealthPrefab;
+
+	// Private variables.
+	int healthPlayer;
+	int healthEnemy;
+	GameObject GUIHealth;
+	Slider
+	List<GameObject> VPlayer = new List<GameObject>();
+	List<GameObject> VEnemy = new List<GameObject>();
+	List<GameObject> VHousesPlayer;
+	List<GameObject> VHousesEnemy;
+
 	// Use this for initialization
 	void Start () {
-		this.VPrefabPlayer = gameManager.VPrefabPlayer;
-		this.VPrefabEnemy = gameManager.VPrefabEnemy;
 		this.VHousesPlayer = gameManager.VHousesPlayer;
 		this.VHousesEnemy = gameManager.VHousesEnemy;
+
+		healthPlayer = 100;
+		healthEnemy = 100;
+
+		GUIHealth = Instantiate(CanvasHealthPrefab, transform.position, transform.rotation) as GameObject;
 	}
 	
 	// Update is called once per frame
@@ -34,6 +40,10 @@ public class GameStateBattle : MonoBehaviour {
 
 		// Manage the villagers as they attack and defend.
 		manageVillagers();
+
+		// Change health
+		GUIHealth.transform.GetChild(0).gameObject.GetComponent<Slider>().value = healthPlayer;
+		GUIHealth.transform.GetChild(1).gameObject.GetComponent<Slider>().value = healthEnemy;
 	}
 
 	// Private functions.
@@ -54,6 +64,7 @@ public class GameStateBattle : MonoBehaviour {
 				villagerScript.SetDead();
 				VPlayer.Remove(villager);
 				villagerScript.Die();
+				healthPlayer--;
 			}
 		}
 
@@ -71,12 +82,14 @@ public class GameStateBattle : MonoBehaviour {
 				villagerScript.SetDead();
 				VEnemy.Remove(villager);
 				villagerScript.Die();
+				healthEnemy--;
 			}
 		}
 	}
 
 	// Manage the houses and spawning in the village.
 	void manageVillageHouses() {
+		// Manage player houses.
 		foreach (GameObject house in VHousesPlayer) {
 			VillageHouse houseScript = house.GetComponent<VillageHouse>();
 			if (houseScript.villager == null) {
@@ -84,6 +97,8 @@ public class GameStateBattle : MonoBehaviour {
 				VPlayer.Add(houseScript.villager);
 			}
 		}
+
+		// Manage enemy houses.
 		foreach (GameObject house in VHousesEnemy) {
 			VillageHouse houseScript = house.GetComponent<VillageHouse>();
 			if (houseScript.villager == null) {

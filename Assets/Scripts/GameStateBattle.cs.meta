@@ -1,10 +1,14 @@
 fileFormatVersion: 2
 guid: 1c03a82e324c643a99d444957f0caecf
-timeCreated: 1454394091
+timeCreated: 1454411760
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - gameManager: {instanceID: 0}
+  - VPrefabPlayer: {fileID: 125916, guid: 0b8f2546015a5c340a130ae64d85b960, type: 2}
+  - VPrefabEnemy: {fileID: 128850, guid: f950cd620e206ba44a2c64dcb24cb171, type: 2}
+  - CanvasHealthPrefab: {fileID: 130206, guid: 9190630cd5fff41f4a774c9c94190d42, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

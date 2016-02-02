@@ -4,7 +4,6 @@ using System.Collections;
 public class VillageHouse : MonoBehaviour {
 
     public GameObject villager;
-    public GameObject villagerPrefab;
 
     public GameObject spawnVillager(GameObject prefab) {
         Transform spawnPoint = this.transform.Find("SpawnPoint");
