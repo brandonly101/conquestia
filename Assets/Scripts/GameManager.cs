@@ -6,6 +6,8 @@ public class GameManager : MonoBehaviour {
 
 	public static GameManager instance = null;
 
+	public GameObject canvas;
+
     const int PLAYER = 0;
 	const int ENEMY = 1;
 
@@ -14,6 +16,12 @@ public class GameManager : MonoBehaviour {
 	public List<GameObject> VHousesEnemy;
 	List<GameObject> VPlayer;
 	List<GameObject> VEnemy;
+
+	// Public functions to be accessed by other classes.
+	public void ChangeScene() {
+		canvas.SetActive(false);
+		gameObject.AddComponent<GameStateBattle>().gameManager = this;
+	}
 
 	// Game States
 	GameStateBattle gsBattle;
@@ -35,17 +43,11 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void InitGame () {
-//		VHousesPlayer = new List<GameObject>();
-//		VHousesEnemy = new List<GameObject>();
+		VHousesPlayer = new List<GameObject>();
+		VHousesEnemy = new List<GameObject>();
 		VPlayer = new List<GameObject>();
 		VEnemy = new List<GameObject>();
-		gameObject.AddComponent<GameStateBattle>().gameManager = this;
     }
-
-	public void ChangeScene(string new_scene) {
-		Application.LoadLevel(new_scene);
-		gameObject.AddComponent<GameStateBattle>().gameManager = this;
-	}
 
     // Update is called once per frame
 	void Update () {

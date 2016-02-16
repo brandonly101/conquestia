@@ -31,7 +31,7 @@ public class GameStateBattle : MonoBehaviour {
 		healthPlayer = 30;
 		healthEnemy = 30;
 
-		GUIHealth = Instantiate(CanvasHealthPrefab, transform.position, transform.rotation) as GameObject;
+		GUIHealth = Instantiate(Resources.Load("GUI/BattleHealthGUI"), transform.position, transform.rotation) as GameObject;
 		HealthBarPlayer = GUIHealth.transform.GetChild(0).gameObject.GetComponent<Slider>();
 		HealthBarEnemy = GUIHealth.transform.GetChild(1).gameObject.GetComponent<Slider>();
 		HealthBarPlayer.maxValue = healthPlayer;
@@ -98,7 +98,7 @@ public class GameStateBattle : MonoBehaviour {
 		foreach (GameObject house in VHousesPlayer) {
 			VillageHouse houseScript = house.GetComponent<VillageHouse>();
 			if (houseScript.villager == null) {
-				houseScript.spawnVillager(VPrefabPlayer);
+				houseScript.spawnVillager(true);
 				VPlayer.Add(houseScript.villager);
 			}
 		}
@@ -107,7 +107,7 @@ public class GameStateBattle : MonoBehaviour {
 		foreach (GameObject house in VHousesEnemy) {
 			VillageHouse houseScript = house.GetComponent<VillageHouse>();
 			if (houseScript.villager == null) {
-				houseScript.spawnVillager(VPrefabEnemy);
+				houseScript.spawnVillager(false);
 				VEnemy.Add(houseScript.villager);
 			}
 		}
