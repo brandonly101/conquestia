@@ -37,7 +37,7 @@ public class GameStateBuild : MonoBehaviour {
 		if (enemyHouses == null)
 			enemyHouses = new List<GameObject>();
 
-		gameManager.StartBattleMode ();
+		//gameManager.StartBattleMode ();
 
 //		spawnHouses();
 	}

@@ -7,8 +7,13 @@ public class GameManager : MonoBehaviour {
 	public static GameManager instance = null;
 
 	public Camera cameraObj;
-	public GameObject canvas;
+	public GameObject titleCanvas;
+	public GameObject buildCanvas;
 	public GameObject ImageTarget;
+	public GameObject BuildButton;
+	public GameObject BattleButton;
+
+	//public class BuildState;
 
     const int PLAYER = 0;
 	const int ENEMY = 1;
@@ -19,17 +24,27 @@ public class GameManager : MonoBehaviour {
 
 	// Public functions to be accessed by other classes.
 	public void StartGame() {
-		canvas.SetActive(false);
+		titleCanvas.SetActive(false);
+
 		StartBuildMode();
 //		gameObject.AddComponent<GameStateBuild>().gameManager = this;
 	}
 
 	public void StartBuildMode() {
-		gameObject.AddComponent<GameStateBuild>().gameManager = this;
+		//gameObject.AddComponent<GameStateBuild>().gameManager = this;
+		GetComponent<GameStateBuild> ().enabled = true;
+		GetComponent<GameStateBattle> ().enabled = false;
+		BattleButton.SetActive(true);
+		BuildButton.SetActive(false);
+		buildCanvas.SetActive(true);
 	}
 
 	public void StartBattleMode() {
-		gameObject.AddComponent<GameStateBattle>().gameManager = this;
+		GetComponent<GameStateBattle> ().enabled = true;
+		GetComponent<GameStateBuild> ().enabled = false;
+		BattleButton.SetActive(false);
+		BuildButton.SetActive(true);
+
 	}
 
 	// Use this for initialization
@@ -51,6 +66,16 @@ public class GameManager : MonoBehaviour {
 	void InitGame () {
 		VHousesPlayer = new List<GameObject>();
 //		VHousesEnemy = new List<GameObject>();
+		titleCanvas = GameObject.Find("Canvas");
+		buildCanvas = GameObject.Find("BuildCanvas");
+		BattleButton = GameObject.Find ("Battle!");
+		BuildButton = GameObject.Find ("Build!");
+		buildCanvas.SetActive(false);
+		//BuildState = GetComponent<GameStateBuild> ();
+		gameObject.AddComponent<GameStateBuild>().gameManager = this;
+		GetComponent<GameStateBuild> ().enabled = false;
+		gameObject.AddComponent<GameStateBattle>().gameManager = this;
+		GetComponent<GameStateBattle> ().enabled = false;
     }
 
     // Update is called once per frame
