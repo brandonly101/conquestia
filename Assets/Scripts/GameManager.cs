@@ -6,7 +6,9 @@ public class GameManager : MonoBehaviour {
 
 	public static GameManager instance = null;
 
+	public Camera cameraObj;
 	public GameObject canvas;
+	public GameObject ImageTarget;
 
     const int PLAYER = 0;
 	const int ENEMY = 1;
@@ -14,17 +16,21 @@ public class GameManager : MonoBehaviour {
 	// List that keeps track of the village houses and villagers.
 	public List<GameObject> VHousesPlayer;
 	public List<GameObject> VHousesEnemy;
-	List<GameObject> VPlayer;
-	List<GameObject> VEnemy;
 
 	// Public functions to be accessed by other classes.
-	public void ChangeScene() {
+	public void StartGame() {
 		canvas.SetActive(false);
-		gameObject.AddComponent<GameStateBattle>().gameManager = this;
+		StartBuildMode();
+//		gameObject.AddComponent<GameStateBuild>().gameManager = this;
 	}
 
-	// Game States
-	GameStateBattle gsBattle;
+	public void StartBuildMode() {
+		gameObject.AddComponent<GameStateBuild>().gameManager = this;
+	}
+
+	public void StartBattleMode() {
+		gameObject.AddComponent<GameStateBattle>().gameManager = this;
+	}
 
 	// Use this for initialization
 	void Awake () {
@@ -44,9 +50,7 @@ public class GameManager : MonoBehaviour {
 
 	void InitGame () {
 		VHousesPlayer = new List<GameObject>();
-		VHousesEnemy = new List<GameObject>();
-		VPlayer = new List<GameObject>();
-		VEnemy = new List<GameObject>();
+//		VHousesEnemy = new List<GameObject>();
     }
 
     // Update is called once per frame

@@ -36,6 +36,8 @@ public class GameStateBattle : MonoBehaviour {
 		HealthBarEnemy = GUIHealth.transform.GetChild(1).gameObject.GetComponent<Slider>();
 		HealthBarPlayer.maxValue = healthPlayer;
 		HealthBarEnemy.maxValue = healthEnemy;
+
+		gameManager.ImageTarget.transform.position = new Vector3(25.0f, 0.0f, -25.0f);
 	}
 	
 	// Update is called once per frame
