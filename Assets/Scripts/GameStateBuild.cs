@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 public class GameStateBuild : MonoBehaviour {
 
+	// Reference to the singleton GameManager.
+	public GameManager gameManager;
+
 	const int FIELD_SIZE = 5;
 
 	public GameObject house;
@@ -12,7 +15,6 @@ public class GameStateBuild : MonoBehaviour {
 	List<GameObject> enemyHouses;
 	Vector3[,] spawnPoints;
 	bool[,] spawnPointsMark;
-	public GameManager gameManager;
 
 	// Use this for initialization
 	void Start () {
@@ -20,6 +22,7 @@ public class GameStateBuild : MonoBehaviour {
 		enemyHouses = gameManager.VHousesEnemy;
 
 		gameManager.ImageTarget.transform.position = new Vector3(25.0f, 0, 25.0f);
+		gameManager.MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
 
 		spawnPoints = new Vector3[FIELD_SIZE, FIELD_SIZE];
 		spawnPointsMark = new bool[FIELD_SIZE, FIELD_SIZE];
@@ -37,8 +40,7 @@ public class GameStateBuild : MonoBehaviour {
 		if (enemyHouses == null)
 			enemyHouses = new List<GameObject>();
 
-		//gameManager.StartBattleMode ();
-
+//		gameManager.StartBattleMode ();
 //		spawnHouses();
 	}
 
@@ -46,13 +48,16 @@ public class GameStateBuild : MonoBehaviour {
 	void Update () {
 		if (Input.GetMouseButtonDown(0)) {
 			Vector3 mousePos = Input.mousePosition;
-//			mousePos.z = 2.0f;
+			mousePos.z = 2.0f;
 			Ray ray = Camera.main.ScreenPointToRay (mousePos);
 			RaycastHit hit;
 			Physics.Raycast (ray, out hit, 1000f);
 			Vector3 objPos = hit.point;
-//			Vector3 objPos = Camera.main.ScreenPointToRay (mousePos);
-			spawnHouse (objPos);
+
+			// Hacky way of making houses spawn only on the X-Z plane.
+			if (objPos.y == 0.0f) {
+				spawnHouse (objPos);
+			}
 		}
 	}
 

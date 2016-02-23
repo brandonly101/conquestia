@@ -37,7 +37,8 @@ public class GameStateBattle : MonoBehaviour {
 		HealthBarPlayer.maxValue = healthPlayer;
 		HealthBarEnemy.maxValue = healthEnemy;
 
-		gameManager.ImageTarget.transform.position = new Vector3(25.0f, 0.0f, -25.0f);
+		gameManager.ImageTarget.transform.position = new Vector3(-25.0f, 0.0f, 25.0f);
+		gameManager.MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
 	}
 	
 	// Update is called once per frame
@@ -112,6 +113,17 @@ public class GameStateBattle : MonoBehaviour {
 				houseScript.spawnVillager(false);
 				VEnemy.Add(houseScript.villager);
 			}
+		}
+	}
+
+	// Do things when this MonoBehavior is destroyed.
+	void OnDestroy() {
+		// Kill all villagers still present.
+		foreach (GameObject villager in VPlayer) {
+			villager.GetComponent<Villager>().Die();
+		}
+		foreach (GameObject villager in VEnemy) {
+			villager.GetComponent<Villager>().Die();
 		}
 	}
 }
