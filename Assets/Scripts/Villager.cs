@@ -11,31 +11,17 @@ public class Villager : MonoBehaviour {
 
 	Animator anim;
 	float timer;
-	bool alive;
+	public bool alive;
 
     // Function that kills the villager.
     public void Die () {
-        foreach (MeshRenderer mesh in GetComponentsInChildren<MeshRenderer>())
-        {
+        foreach (MeshRenderer mesh in GetComponentsInChildren<MeshRenderer>()) {
             mesh.enabled = false;
         }
         GetComponent<AudioSource>().Play();
         GameObject exp = Instantiate(ExplodePrefab, transform.position, transform.rotation) as GameObject;
         Destroy(exp, 1.0f);
         Destroy(this.gameObject, 1.0f);
-    }
-
-    // Getters and Setters.
-    public bool GetAlive () {
-        return alive;
-    }
-
-    public int GetHealth () {
-        return health;
-    }
-
-    public void SetDead() {
-        alive = false;
     }
 
 	public void SetObjectTarget (GameObject target) {

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,120 +10,158 @@ public class GameStateBattle : MonoBehaviour {
 
 	public GameObject VPrefabPlayer;
 	public GameObject VPrefabEnemy;
-	public GameObject CanvasHealthPrefab;
 
-	// Private variables.
-	int healthPlayer;
-	int healthEnemy;
-	GameObject GUIHealth;
-	Slider HealthBarPlayer;
-	Slider HealthBarEnemy;
-	List<GameObject> VPlayer = new List<GameObject>();
-	List<GameObject> VEnemy = new List<GameObject>();
+	// Private game variables.
+	List<GameObject> VPlayer;
+	List<GameObject> VEnemy;
 	List<GameObject> VHousesPlayer;
 	List<GameObject> VHousesEnemy;
+	bool battle;
+	int healthPlayer;
+	int healthEnemy;
+
+	// GUI variables.
+	GameObject GUIBattle;
+	Slider HealthBarPlayer;
+	Slider HealthBarEnemy;
+
+	// Public functions.
+	public void assignVillagerTarget (GameObject villager, bool isPlayer) {
+		Villager villagerScript = villager.GetComponent<Villager>();
+		if (isPlayer) {
+			villagerScript.ObjectTarget = VEnemy[Random.Range(0, VEnemy.Count)];
+		} else {
+			villagerScript.ObjectTarget = VPlayer[Random.Range(0, VPlayer.Count)];
+		}
+	}
+
+	public void addVillager (GameObject villager, bool isPlayer) {
+		if (isPlayer) {
+			VPlayer.Add(villager);
+		} else {
+			VEnemy.Add(villager);
+		}
+	}
+
+	public void removeVillager (GameObject villager, bool isPlayer) {
+		Villager villagerScript = villager.GetComponent<Villager>();
+		if (isPlayer) {
+			VPlayer.Remove(villager);
+			healthPlayer--;
+		} else {
+			VEnemy.Remove(villager);
+			healthEnemy--;
+		}
+		villagerScript.alive = false;
+		villagerScript.Die();
+	}
 
 	// Use this for initialization
-	void Start () {
-		this.VHousesPlayer = gameManager.VHousesPlayer;
-		this.VHousesEnemy = gameManager.VHousesEnemy;
+	void Awake () {
+		// Set references.
+		VHousesPlayer = gameManager.VHousesPlayer;
+		VHousesEnemy = gameManager.VHousesEnemy;
 
-		healthPlayer = 30;
-		healthEnemy = 30;
+        GUIBattle = gameManager.GUIBattle;
+    }
 
-		GUIHealth = Instantiate(Resources.Load("GUI/BattleHealthGUI"), transform.position, transform.rotation) as GameObject;
-		HealthBarPlayer = GUIHealth.transform.GetChild(0).gameObject.GetComponent<Slider>();
-		HealthBarEnemy = GUIHealth.transform.GetChild(1).gameObject.GetComponent<Slider>();
-		HealthBarPlayer.maxValue = healthPlayer;
-		HealthBarEnemy.maxValue = healthEnemy;
+    void OnEnable () {
+        foreach (GameObject house in VHousesPlayer) {
+            VillageHouse houseScript = house.GetComponent<VillageHouse>();
+            houseScript.gameStateBattle = this;
+        }
 
-		gameManager.ImageTarget.transform.position = new Vector3(-25.0f, 0.0f, 25.0f);
-		gameManager.MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		// Manage the village houses and to spawn more villagers when necessary.
-		manageVillageHouses();
+        // Set game variables.
+        VPlayer = new List<GameObject>();
+        VEnemy = new List<GameObject>();
+        healthPlayer = 7;
+        healthEnemy = 7;
 
-		// Manage the villagers as they attack and defend.
-		manageVillagers();
+        // Set up the health GUI.
+		GUIBattle.transform.GetChild(0).gameObject.SetActive(true);
+        GUIBattle.transform.GetChild(1).gameObject.SetActive(true);
+		GUIBattle.transform.GetChild(2).gameObject.SetActive(false);
+		GUIBattle.transform.GetChild(3).gameObject.SetActive(false);
+		GUIBattle.transform.GetChild(4).gameObject.SetActive(false);
 
-		// Change health
-		HealthBarPlayer.value = healthPlayer;
-		HealthBarEnemy.value = healthEnemy;
-	}
+        HealthBarPlayer = GUIBattle.transform.GetChild(0).gameObject.GetComponent<Slider>();
+        HealthBarEnemy = GUIBattle.transform.GetChild(1).gameObject.GetComponent<Slider>();
+        HealthBarPlayer.maxValue = healthPlayer;
+        HealthBarEnemy.maxValue = healthEnemy;
 
-	// Private functions.
+        gameManager.MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
 
-	// Manage the villagers.
-	void manageVillagers () {
-		// Manage each and every player villager.
-		foreach (GameObject villager in VPlayer) {
-			Villager villagerScript = villager.GetComponent<Villager>();
+        // Test for now...
+        spawnEnemies();
 
-			// Check to see if player villager each have a target.
-			if (villagerScript.ObjectTarget == null) {
-				villagerScript.ObjectTarget = VEnemy[Random.Range(0, VEnemy.Count)];
+        setBattleMode(true);
+    }
+
+    // Update is called once per frame
+    void Update () {
+        // Change health
+        HealthBarPlayer.value = healthPlayer;
+        HealthBarEnemy.value = healthEnemy;
+
+		if ((healthPlayer <= 0.0f || healthEnemy <= 0.0f) && battle) {
+			GUIBattle.transform.GetChild(2).gameObject.SetActive(true);
+			setBattleMode(false);
+
+			// Show the correct end battle message and disable health bars.
+			if (healthPlayer >= healthEnemy) {
+				GUIBattle.transform.GetChild(3).gameObject.SetActive(true);
+			} else {
+				GUIBattle.transform.GetChild(4).gameObject.SetActive(true);
 			}
+			GUIBattle.transform.GetChild(0).gameObject.SetActive(false);
+			GUIBattle.transform.GetChild(1).gameObject.SetActive(false);
 
-			// Check to see if enemy villager is dead.
-			if (villagerScript.GetHealth() == 0 && villagerScript.GetAlive()) {
-				villagerScript.SetDead();
-				VPlayer.Remove(villager);
-				villagerScript.Die();
-				healthPlayer--;
+			// Destroy all villagers still present.
+			foreach (GameObject villager in VPlayer) {
+				villager.GetComponent<Villager>().Die();
 			}
-		}
-
-		// Manage each and every enemy villager.
-		foreach (GameObject villager in VEnemy) {
-			Villager villagerScript = villager.GetComponent<Villager>();
-
-			// Check to see if enemy villager each have a target.
-			if (villagerScript.ObjectTarget == null) {
-				villagerScript.ObjectTarget = VPlayer[Random.Range(0, VPlayer.Count)];
-			}
-
-			// Check to see if enemy villager is dead.
-			if (villagerScript.GetHealth() == 0 && villagerScript.GetAlive()) {
-				villagerScript.SetDead();
-				VEnemy.Remove(villager);
-				villagerScript.Die();
-				healthEnemy--;
+			foreach (GameObject villager in VEnemy) {
+				villager.GetComponent<Villager>().Die();
 			}
 		}
+    }
+
+    // Private functions.
+    void spawnEnemies () {
+		for (int i = 0; i < 5; i++) {
+			GameObject villageHouse = (GameObject) Instantiate(
+				Resources.Load("VillagerHouseEnemy"),
+				new Vector3(-50.0f, 0.0f, ((float) i) * 10.0f + 2.5f),
+				new Quaternion(0.0f, 0.0f, 0.0f, 0.0f)
+			);
+			VHousesEnemy.Add(villageHouse);
+			villageHouse.GetComponent<VillageHouse>().gameStateBattle = this;
+		}
 	}
 
-	// Manage the houses and spawning in the village.
-	void manageVillageHouses() {
+	void setBattleMode (bool mode) {
+		// Set whether or not the battle is going on currently.
+		battle = mode;
+
 		// Manage player houses.
 		foreach (GameObject house in VHousesPlayer) {
 			VillageHouse houseScript = house.GetComponent<VillageHouse>();
-			if (houseScript.villager == null) {
-				houseScript.spawnVillager(true);
-				VPlayer.Add(houseScript.villager);
-			}
+			houseScript.battleMode = mode;
 		}
 
 		// Manage enemy houses.
 		foreach (GameObject house in VHousesEnemy) {
 			VillageHouse houseScript = house.GetComponent<VillageHouse>();
-			if (houseScript.villager == null) {
-				houseScript.spawnVillager(false);
-				VEnemy.Add(houseScript.villager);
-			}
+			houseScript.battleMode = mode;
 		}
 	}
 
-	// Do things when this MonoBehavior is destroyed.
-	void OnDestroy() {
-		// Kill all villagers still present.
-		foreach (GameObject villager in VPlayer) {
-			villager.GetComponent<Villager>().Die();
+	// Do things when this MonoBehavior is disabled.
+	void OnDisable () {
+		// Remove the enemy village.
+		foreach (GameObject house in VHousesEnemy) {
+			Destroy(house);
 		}
-		foreach (GameObject villager in VEnemy) {
-			villager.GetComponent<Villager>().Die();
-		}
+		VHousesEnemy.Clear();
 	}
 }

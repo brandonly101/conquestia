@@ -4,16 +4,21 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 
+    // Singleton instance of the GameManager.
 	public static GameManager instance = null;
 
-	public GameObject titleCanvas;
-	public GameObject buildCanvas;
+    // References to the game states.
+    public GameStateBuild build;
+    public GameStateBattle battle;
 	public GameObject MainCamera;
 	public GameObject ImageTarget;
-	public GameObject BuildButton;
-	public GameObject BattleButton;
 
-	//public class BuildState;
+	// Main game GUI.
+	public GameObject GUIMainMenu;
+	public GameObject GUIGather;
+	public GameObject GUIBuild;
+	public GameObject GUIBattle;
+
     const int PLAYER = 0;
 	const int ENEMY = 1;
 
@@ -23,29 +28,29 @@ public class GameManager : MonoBehaviour {
 
 	// Public functions to be accessed by other classes.
 	public void StartGame() {
-		titleCanvas.SetActive(false);
+		GUIMainMenu.SetActive(false);
 		StartBuildMode();
 	}
 
 	public void StartBuildMode() {
-		gameObject.AddComponent<GameStateBuild>().gameManager = this;
-		if (GetComponent<GameStateBattle>()) {
-			Destroy (GetComponent<GameStateBattle>());
-		}
-		BattleButton.SetActive(true);
-		BuildButton.SetActive(false);
-		buildCanvas.SetActive(true);
+        // Activate and deactivate the correct game states.
+        build.enabled = true;
+        battle.enabled = false;
+
+        // Activate and deactivate the correct GUI elements.
+        GUIBuild.SetActive(true);
+		GUIBattle.SetActive(false);
 	}
 
 	public void StartBattleMode() {
-		gameObject.AddComponent<GameStateBattle>().gameManager = this;
-		if (GetComponent<GameStateBuild>()) {
-			Destroy (GetComponent<GameStateBuild>());
-		}
-		BattleButton.SetActive(false);
-		BuildButton.SetActive(true);
+        // Activate and deactivate the correct game states.
+        build.enabled = false;
+        battle.enabled = true;
 
-	}
+        // Activate and deactivate the correct GUI elements.
+        GUIBuild.SetActive(false);
+		GUIBattle.SetActive(true);
+}
 
 	// Use this for initialization
 	void Awake () {
@@ -64,13 +69,31 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void InitGame () {
+		// Reference and object initializations.
 		VHousesPlayer = new List<GameObject>();
-//		VHousesEnemy = new List<GameObject>();
-		titleCanvas = GameObject.Find("Canvas");
-		buildCanvas = GameObject.Find("BuildCanvas");
-		BattleButton = GameObject.Find ("Battle!");
-		BuildButton = GameObject.Find ("Build!");
-		buildCanvas.SetActive(false);
+		VHousesEnemy = new List<GameObject>();
+        build = GetComponent<GameStateBuild>();
+        battle = GetComponent<GameStateBattle>();
+        build.enabled = false;
+        battle.enabled = false;
+        foreach (GameObject house in VHousesPlayer) {
+            VillageHouse houseScript = house.GetComponent<VillageHouse>();
+            houseScript.gameStateBuild = build;
+            houseScript.gameStateBattle = battle;
+        }
+        foreach (GameObject house in VHousesEnemy) {
+            VillageHouse houseScript = house.GetComponent<VillageHouse>();
+            houseScript.gameStateBuild = build;
+            houseScript.gameStateBattle = battle;
+        }
+
+        ImageTarget.transform.position = new Vector3(25.0f, 0, 25.0f);
+        MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
+
+		GUIMainMenu.SetActive(true);
+        GUIGather.SetActive(false);
+		GUIBuild.SetActive(false);
+		GUIBattle.SetActive(false);
     }
 
     // Update is called once per frame
