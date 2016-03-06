@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour {
 
     // Singleton instance of the GameManager.
-	public static GameManager instance = null;
+	public static GameManager GameManagerInstance = null;
 
     // References to the game states.
     public GameStateBuild build;
@@ -15,49 +15,38 @@ public class GameManager : MonoBehaviour {
 
 	// Main game GUI.
 	public GameObject GUIMainMenu;
-	public GameObject GUIGather;
-	public GameObject GUIBuild;
-	public GameObject GUIBattle;
-
-    const int PLAYER = 0;
-	const int ENEMY = 1;
-
-	// List that keeps track of the village houses and villagers.
-	public List<GameObject> VHousesPlayer;
-	public List<GameObject> VHousesEnemy;
 
 	// Public functions to be accessed by other classes.
-	public void StartGame() {
-		GUIMainMenu.SetActive(false);
-		StartBuildMode();
-	}
+    public void StartGameNew () {
+        SaveManager.GameNew();
+        GUIMainMenu.SetActive(false);
+        StartBuildMode();
+    }
 
-	public void StartBuildMode() {
+    public void StartGameContinue () {
+        SaveManager.GameLoad();
+        GUIMainMenu.SetActive(false);
+        StartBuildMode();
+    }
+
+	public void StartBuildMode () {
         // Activate and deactivate the correct game states.
         build.enabled = true;
         battle.enabled = false;
-
-        // Activate and deactivate the correct GUI elements.
-        GUIBuild.SetActive(true);
-		GUIBattle.SetActive(false);
 	}
 
-	public void StartBattleMode() {
+	public void StartBattleMode () {
         // Activate and deactivate the correct game states.
         build.enabled = false;
         battle.enabled = true;
-
-        // Activate and deactivate the correct GUI elements.
-        GUIBuild.SetActive(false);
-		GUIBattle.SetActive(true);
 }
 
 	// Use this for initialization
 	void Awake () {
 		// Check if instance already exists.
-		if (instance == null) {
-			instance = this;
-		} else if (instance != this) {
+		if (GameManagerInstance == null) {
+            GameManagerInstance = this;
+		} else if (GameManagerInstance != this) {
 			Destroy (gameObject);
 		}
 
@@ -70,34 +59,15 @@ public class GameManager : MonoBehaviour {
 
 	void InitGame () {
 		// Reference and object initializations.
-		VHousesPlayer = new List<GameObject>();
-		VHousesEnemy = new List<GameObject>();
         build = GetComponent<GameStateBuild>();
         battle = GetComponent<GameStateBattle>();
         build.enabled = false;
         battle.enabled = false;
-        foreach (GameObject house in VHousesPlayer) {
-            VillageHouse houseScript = house.GetComponent<VillageHouse>();
-            houseScript.gameStateBuild = build;
-            houseScript.gameStateBattle = battle;
-        }
-        foreach (GameObject house in VHousesEnemy) {
-            VillageHouse houseScript = house.GetComponent<VillageHouse>();
-            houseScript.gameStateBuild = build;
-            houseScript.gameStateBattle = battle;
-        }
 
         ImageTarget.transform.position = new Vector3(25.0f, 0, 25.0f);
         MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
 
+        // Enable GUI Elements.
 		GUIMainMenu.SetActive(true);
-        GUIGather.SetActive(false);
-		GUIBuild.SetActive(false);
-		GUIBattle.SetActive(false);
     }
-
-    // Update is called once per frame
-	void Update () {
-		
-	}
 }

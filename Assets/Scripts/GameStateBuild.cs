@@ -4,26 +4,33 @@ using System.Collections.Generic;
 
 public class GameStateBuild : MonoBehaviour {
 
-    // Reference to the singleton GameManager.
-    public GameManager gameManager;
+    // Public variables.
+    public GameObject GUIBuild;
 
+    // Private variables.
     List<GameObject> VHousesPlayer;
-
-    // Build menu variables.
     bool isBuilding;
     GameObject ObjectPrebuild;
     Vector3 PrebuildPos;
     int buildType;
-    GameObject GUIBuild;
 
     // Public functions.
     public void buildSpawn () {
-        if (buildType == 0) {
-			GameObject villageHouse = cleanSpawnObject ("VillagerHousePlayer", PrebuildPos);
+        if (buildType == 0 && enoughResources(buildType)) {
+            GameObject villageHouse = cleanSpawnObject("VillagerHousePlayer", PrebuildPos);
             VHousesPlayer.Add(villageHouse);
             villageHouse.GetComponent<VillageHouse>().gameStateBuild = this;
+            SaveManager.GameDataSave.numWood -= 1;
+            SaveManager.GameDataSave.numBrick -= 3;
+            SaveManager.GameDataSave.numOre -= 2;
+            saveBuildingProperties(villageHouse.transform.position, "VillagerHousePlayer");
+        } else {
+            GUIBuild.transform.GetChild(1).gameObject.SetActive(true);
+            StartCoroutine(GUIDisableOverTime(3.0f));
+            return;
         }
         buildCancel();
+        SaveManager.GameSave();
     }
 
     public void buildCancel () {
@@ -38,7 +45,6 @@ public class GameStateBuild : MonoBehaviour {
             buildType = 0;
         else
             buildType = buildType + 1;
-        print("Build Type: " + buildType);
     }
 
     public void buildPrev () {
@@ -46,7 +52,6 @@ public class GameStateBuild : MonoBehaviour {
             buildType = 2;
         else
             buildType = buildType - 1;
-        print("Build Type: " + buildType);
     }
 
     public void onPress () {
@@ -67,24 +72,35 @@ public class GameStateBuild : MonoBehaviour {
 
     // Use this for initialization
     void Awake () {
-        // Set references.
-        VHousesPlayer = gameManager.VHousesPlayer;
-        GUIBuild = gameManager.GUIBuild;
         buildType = 0;
+        VHousesPlayer = new List<GameObject>();
 
-        gameManager.ImageTarget.transform.position = new Vector3(25.0f, 0, 25.0f);
-        gameManager.MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
+        // Disable the build GUI, for now.
+        GUIBuild.SetActive(false);
+
+        GameManager.GameManagerInstance.ImageTarget.transform.position = new Vector3(25.0f, 0, 25.0f);
+        GameManager.GameManagerInstance.MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
     }
 
     void OnEnable () {
-        gameManager.MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
         isBuilding = false;
-		setBuildMenuGUI(false);
-    }
+        for (int i = 0; i < SaveManager.GameDataSave.buildingNum; i++) {
+            GameObject house = (GameObject) Instantiate(
+                    Resources.Load(SaveManager.GameDataSave.buildingName[i]),
+                    new Vector3(SaveManager.GameDataSave.buildingPos[i][0], SaveManager.GameDataSave.buildingPos[i][1], SaveManager.GameDataSave.buildingPos[i][2]),
+                    new Quaternion(0.0f, 180.0f, 0.0f, 0.0f)
+            );
+            VHousesPlayer.Add(house);
+        }
+        foreach (GameObject house in VHousesPlayer) {
+            VillageHouse houseScript = house.GetComponent<VillageHouse>();
+            houseScript.gameStateBuild = this;
+        }
+        GameManager.GameManagerInstance.MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
 
-    // Update is called once per frame
-    void Update () {
-
+        // Enable GUI elements.
+        GUIBuild.SetActive(true);
+        setBuildMenuGUI(false);
     }
 
     // Private functions
@@ -92,7 +108,18 @@ public class GameStateBuild : MonoBehaviour {
         isBuilding = true;
         PrebuildPos = position;
 		ObjectPrebuild = cleanSpawnObject("HousePrebuild", PrebuildPos);
-		setBuildMenuGUI (true);
+		setBuildMenuGUI(true);
+        GUIBuild.transform.GetChild(1).gameObject.SetActive(false);
+    }
+
+    bool enoughResources (int buildType) {
+        if (buildType == 0 && SaveManager.GameDataSave.numWood - 1 > 0 &&
+                SaveManager.GameDataSave.numBrick - 3 > 0 &&
+                SaveManager.GameDataSave.numOre - 2 > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 	// Clean the spawn point so that buildings spawn on an even grid.
@@ -110,6 +137,31 @@ public class GameStateBuild : MonoBehaviour {
 
 	void setBuildMenuGUI (bool mode) {
 		GUIBuild.transform.GetChild(0).gameObject.SetActive(mode);
-		GUIBuild.transform.GetChild(1).gameObject.SetActive(!mode);
-	}
+        GUIBuild.transform.GetChild(1).gameObject.SetActive(mode);
+        GUIBuild.transform.GetChild(2).gameObject.SetActive(!mode);
+    }
+
+    void saveBuildingProperties (Vector3 pos, string name) {
+        SaveManager.GameDataSave.buildingNum++;
+        SaveManager.GameDataSave.buildingPos.Add(new float[3] { pos.x, pos.y, pos.z });
+        SaveManager.GameDataSave.buildingName.Add(name);
+    }
+
+    IEnumerator GUIDisableOverTime (float time) {
+        yield return new WaitForSeconds(time);
+        GUIBuild.transform.GetChild(1).gameObject.SetActive(false);
+    }
+
+    // Do things when this MonoBehavior is disabled.
+    void OnDisable() {
+        // Remove the village houses.
+        foreach (GameObject house in VHousesPlayer) {
+            Destroy(house);
+        }
+        VHousesPlayer.Clear();
+        // Disable GUI elements.
+        if (GUIBuild) {
+            GUIBuild.SetActive(false);
+        }
+    }
 }

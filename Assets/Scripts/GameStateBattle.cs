@@ -5,14 +5,11 @@ using System.Collections.Generic;
 
 public class GameStateBattle : MonoBehaviour {
 
-	// Reference to the singleton GameManager.
-	public GameManager gameManager;
+    // Public variables.
+    public GameObject GUIBattle;
 
-	public GameObject VPrefabPlayer;
-	public GameObject VPrefabEnemy;
-
-	// Private game variables.
-	List<GameObject> VPlayer;
+    // Private game variables.
+    List<GameObject> VPlayer;
 	List<GameObject> VEnemy;
 	List<GameObject> VHousesPlayer;
 	List<GameObject> VHousesEnemy;
@@ -21,7 +18,6 @@ public class GameStateBattle : MonoBehaviour {
 	int healthEnemy;
 
 	// GUI variables.
-	GameObject GUIBattle;
 	Slider HealthBarPlayer;
 	Slider HealthBarEnemy;
 
@@ -58,14 +54,27 @@ public class GameStateBattle : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		// Set references.
-		VHousesPlayer = gameManager.VHousesPlayer;
-		VHousesEnemy = gameManager.VHousesEnemy;
+        VHousesPlayer = new List<GameObject>();
+		VHousesEnemy = new List<GameObject>();
 
-        GUIBattle = gameManager.GUIBattle;
+        // Disable the GUI on awake, for now.
+        GUIBattle.SetActive(false);
     }
 
     void OnEnable () {
+        // Spawn all player buildings.
+        for (int i = 0; i < SaveManager.GameDataSave.buildingNum; i++) {
+            GameObject house = (GameObject) Instantiate(
+                Resources.Load(SaveManager.GameDataSave.buildingName[i]),
+                new Vector3(
+                    SaveManager.GameDataSave.buildingPos[i][0],
+                    SaveManager.GameDataSave.buildingPos[i][1],
+                    SaveManager.GameDataSave.buildingPos[i][2]
+                ),
+                new Quaternion(0.0f, 180.0f, 0.0f, 0.0f)
+            );
+            VHousesPlayer.Add(house);
+        }
         foreach (GameObject house in VHousesPlayer) {
             VillageHouse houseScript = house.GetComponent<VillageHouse>();
             houseScript.gameStateBattle = this;
@@ -77,8 +86,9 @@ public class GameStateBattle : MonoBehaviour {
         healthPlayer = 7;
         healthEnemy = 7;
 
-        // Set up the health GUI.
-		GUIBattle.transform.GetChild(0).gameObject.SetActive(true);
+        // Enable GUI Elements.
+        GUIBattle.SetActive(true);
+        GUIBattle.transform.GetChild(0).gameObject.SetActive(true);
         GUIBattle.transform.GetChild(1).gameObject.SetActive(true);
 		GUIBattle.transform.GetChild(2).gameObject.SetActive(false);
 		GUIBattle.transform.GetChild(3).gameObject.SetActive(false);
@@ -89,7 +99,7 @@ public class GameStateBattle : MonoBehaviour {
         HealthBarPlayer.maxValue = healthPlayer;
         HealthBarEnemy.maxValue = healthEnemy;
 
-        gameManager.MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
+        GameManager.GameManagerInstance.MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
 
         // Test for now...
         spawnEnemies();
@@ -158,10 +168,19 @@ public class GameStateBattle : MonoBehaviour {
 
 	// Do things when this MonoBehavior is disabled.
 	void OnDisable () {
-		// Remove the enemy village.
-		foreach (GameObject house in VHousesEnemy) {
+        // Remove the village houses.
+        foreach (GameObject house in VHousesPlayer) {
+            Destroy(house);
+        }
+        VHousesPlayer.Clear();
+        foreach (GameObject house in VHousesEnemy) {
 			Destroy(house);
 		}
 		VHousesEnemy.Clear();
-	}
+
+        // Disable GUI Elements.
+        if (GUIBattle) {
+            GUIBattle.SetActive(false);
+        }
+    }
 }

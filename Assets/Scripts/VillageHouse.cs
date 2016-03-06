@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public class VillageHouse : MonoBehaviour {
 
-	public GameManager gameManager;
 	public GameStateBuild gameStateBuild;
 	public GameStateBattle gameStateBattle;
 
