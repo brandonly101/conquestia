@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
@@ -26,7 +25,7 @@ public static class SaveManager {
         if (File.Exists(Application.persistentDataPath + "/GameDataSave.gd")) {
             BinaryFormatter formatter = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + "/GameDataSave.gd", FileMode.Open);
-            SaveManager.GameDataSave = (GameData) formatter.Deserialize(file);
+            GameDataSave = (GameData) formatter.Deserialize(file);
             file.Close();
         }
         MonoBehaviour.print("Game: Loaded");

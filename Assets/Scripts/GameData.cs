@@ -6,9 +6,12 @@ using System.Collections.Generic;
 public class GameData {
 
     // Game data variables.
-    public int numWood;
-    public int numBrick;
-    public int numOre;
+	public int GameLevel;
+	public int numWood;
+	public int numBrick;
+	public int numOre;
+    public int healthVillageP;
+    public int healthVillageE;
 
     // Variables that define player building properties.
     public List<float[]> buildingPos;
@@ -16,9 +19,17 @@ public class GameData {
     public int buildingNum;
 
     public GameData () {
+		// Initialize what level the player is at.
+		GameLevel = 1;
+
+		// Initialize game data information.
         numWood = 50;
         numBrick = 50;
         numOre = 50;
+        healthVillageP = 20;
+        healthVillageE = 20;
+
+		// Initialize player building information.
         buildingPos = new List<float[]>();
         buildingName = new List<string>();
         buildingNum = 0;

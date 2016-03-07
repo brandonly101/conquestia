@@ -13,6 +13,8 @@ public class GameStateBattle : MonoBehaviour {
 	List<GameObject> VEnemy;
 	List<GameObject> VHousesPlayer;
 	List<GameObject> VHousesEnemy;
+	List<GameObject> BuildPlayer;
+	List<GameObject> BuildEnemy;
 	bool battle;
 	int healthPlayer;
 	int healthEnemy;
@@ -56,6 +58,8 @@ public class GameStateBattle : MonoBehaviour {
 	void Awake () {
         VHousesPlayer = new List<GameObject>();
 		VHousesEnemy = new List<GameObject>();
+		BuildPlayer = new List<GameObject>();
+		BuildEnemy = new List<GameObject>();
 
         // Disable the GUI on awake, for now.
         GUIBattle.SetActive(false);
@@ -64,27 +68,29 @@ public class GameStateBattle : MonoBehaviour {
     void OnEnable () {
         // Spawn all player buildings.
         for (int i = 0; i < SaveManager.GameDataSave.buildingNum; i++) {
-            GameObject house = (GameObject) Instantiate(
-                Resources.Load(SaveManager.GameDataSave.buildingName[i]),
+			string resourceName = SaveManager.GameDataSave.buildingName[i];
+            GameObject building = (GameObject) Instantiate(
+				Resources.Load(resourceName),
                 new Vector3(
                     SaveManager.GameDataSave.buildingPos[i][0],
                     SaveManager.GameDataSave.buildingPos[i][1],
                     SaveManager.GameDataSave.buildingPos[i][2]
                 ),
-                new Quaternion(0.0f, 180.0f, 0.0f, 0.0f)
+                new Quaternion(0.0f, 0.0f, 0.0f, 0.0f)
             );
-            VHousesPlayer.Add(house);
-        }
-        foreach (GameObject house in VHousesPlayer) {
-            VillageHouse houseScript = house.GetComponent<VillageHouse>();
-            houseScript.gameStateBattle = this;
+			BuildPlayer.Add(building);
+			if (resourceName == "VillagerHousePlayer") {
+				VHousesPlayer.Add(building);
+				VillageHouse buildingScript = building.GetComponent<VillageHouse>();
+				buildingScript.gameStateBattle = this;
+			}
         }
 
         // Set game variables.
         VPlayer = new List<GameObject>();
         VEnemy = new List<GameObject>();
-        healthPlayer = 7;
-        healthEnemy = 7;
+        healthPlayer = SaveManager.GameDataSave.healthVillageP;
+        healthEnemy = SaveManager.GameDataSave.healthVillageE;
 
         // Enable GUI Elements.
         GUIBattle.SetActive(true);
@@ -99,7 +105,7 @@ public class GameStateBattle : MonoBehaviour {
         HealthBarPlayer.maxValue = healthPlayer;
         HealthBarEnemy.maxValue = healthEnemy;
 
-        GameManager.GameManagerInstance.MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
+		GameManager.instance.MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
 
         // Test for now...
         spawnEnemies();
@@ -120,6 +126,7 @@ public class GameStateBattle : MonoBehaviour {
 			// Show the correct end battle message and disable health bars.
 			if (healthPlayer >= healthEnemy) {
 				GUIBattle.transform.GetChild(3).gameObject.SetActive(true);
+                SaveManager.GameDataSave.GameLevel++;
 			} else {
 				GUIBattle.transform.GetChild(4).gameObject.SetActive(true);
 			}
@@ -139,13 +146,14 @@ public class GameStateBattle : MonoBehaviour {
     // Private functions.
     void spawnEnemies () {
 		for (int i = 0; i < 5; i++) {
-			GameObject villageHouse = (GameObject) Instantiate(
+			GameObject house = (GameObject) Instantiate(
 				Resources.Load("VillagerHouseEnemy"),
-				new Vector3(-50.0f, 0.0f, ((float) i) * 10.0f + 2.5f),
-				new Quaternion(0.0f, 0.0f, 0.0f, 0.0f)
+				new Vector3(50.0f, 0.0f, ((float) i) * 10.0f + 2.5f),
+				new Quaternion(0.0f, 180.0f, 0.0f, 0.0f)
 			);
-			VHousesEnemy.Add(villageHouse);
-			villageHouse.GetComponent<VillageHouse>().gameStateBattle = this;
+			BuildEnemy.Add(house);
+			VHousesEnemy.Add(house);
+			house.GetComponent<VillageHouse>().gameStateBattle = this;
 		}
 	}
 
@@ -169,13 +177,15 @@ public class GameStateBattle : MonoBehaviour {
 	// Do things when this MonoBehavior is disabled.
 	void OnDisable () {
         // Remove the village houses.
-        foreach (GameObject house in VHousesPlayer) {
-            Destroy(house);
+		foreach (GameObject building in BuildPlayer) {
+			Destroy(building);
         }
+		BuildPlayer.Clear();
         VHousesPlayer.Clear();
-        foreach (GameObject house in VHousesEnemy) {
-			Destroy(house);
+		foreach (GameObject building in BuildEnemy) {
+			Destroy(building);
 		}
+		BuildEnemy.Clear();
 		VHousesEnemy.Clear();
 
         // Disable GUI Elements.

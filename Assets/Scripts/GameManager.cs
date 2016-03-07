@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour {
 
     // Singleton instance of the GameManager.
-	public static GameManager GameManagerInstance = null;
+	public static GameManager instance = null;
 
     // References to the game states.
     public GameStateBuild build;
@@ -18,10 +18,22 @@ public class GameManager : MonoBehaviour {
 
 	// Public functions to be accessed by other classes.
     public void StartGameNew () {
-        SaveManager.GameNew();
-        GUIMainMenu.SetActive(false);
-        StartBuildMode();
+		GUIMainMenu.transform.GetChild(1).gameObject.SetActive(false);
+		GUIMainMenu.transform.GetChild(2).gameObject.SetActive(false);
+		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(true);
     }
+
+	public void StartGameNewConfirm () {
+		SaveManager.GameNew();
+		StartBuildMode();
+		GUIMainMenu.SetActive(false);
+	}
+
+	public void StartGameNewCancel () {
+		GUIMainMenu.transform.GetChild(1).gameObject.SetActive(true);
+		GUIMainMenu.transform.GetChild(2).gameObject.SetActive(true);
+		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(false);
+	}
 
     public void StartGameContinue () {
         SaveManager.GameLoad();
@@ -44,9 +56,9 @@ public class GameManager : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		// Check if instance already exists.
-		if (GameManagerInstance == null) {
-            GameManagerInstance = this;
-		} else if (GameManagerInstance != this) {
+		if (instance == null) {
+			instance = this;
+		} else if (instance != this) {
 			Destroy (gameObject);
 		}
 
@@ -64,10 +76,14 @@ public class GameManager : MonoBehaviour {
         build.enabled = false;
         battle.enabled = false;
 
-        ImageTarget.transform.position = new Vector3(25.0f, 0, 25.0f);
-        MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
+        ImageTarget.transform.position = new Vector3(-25.0f, 0, 25.0f);
+        MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
 
         // Enable GUI Elements.
 		GUIMainMenu.SetActive(true);
+		GUIMainMenu.transform.GetChild(0).gameObject.SetActive(true);
+		GUIMainMenu.transform.GetChild(1).gameObject.SetActive(true);
+		GUIMainMenu.transform.GetChild(2).gameObject.SetActive(true);
+		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(false);
     }
 }
