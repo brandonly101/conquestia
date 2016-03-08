@@ -16,9 +16,16 @@ public class GameStateGather : MonoBehaviour {
 	float curr_long;
 	float range = 0.0001f;
 	bool collected = false;
+	public Text ore_count;
+	public Text log_count;
+	public Text brick_count;
+	public Text rand_amt;
+	int amt = 0;
+
 
 	IEnumerator Start () {
 		// Hacky workaround fix
+
 		SaveManager.GameNew();
 		SaveManager.GameDataSave.printData();
 
@@ -30,10 +37,14 @@ public class GameStateGather : MonoBehaviour {
 		log = GameObject.Find ("log").GetComponent<RawImage> ();
 		collect = GameObject.Find ("collect");
 
+		ore_count.text = "Ore: " + SaveManager.GameDataSave.numOre.ToString() + "x";
+		brick_count.text = "Brick: " + SaveManager.GameDataSave.numBrick.ToString() + "x";
+		log_count.text = "Wood: " + SaveManager.GameDataSave.numWood.ToString() + "x";
 		brick.enabled = false;
 		rock.enabled = false;
 		log.enabled = false;
 		collect.SetActive(false);
+		rand_amt.enabled = false;
 
 		// First, check if user has location service enabled
 		if (!Input.location.isEnabledByUser) {
@@ -102,11 +113,16 @@ public class GameStateGather : MonoBehaviour {
 						rock.enabled = true;
 					else
 						log.enabled = true;
+
+					amt = Random.Range(1, 4);
+					rand_amt.text = "x" + amt.ToString ();
+					rand_amt.enabled = true;
 					collect.SetActive (true);
 				} else {
 					brick.enabled = false;
 					rock.enabled = false;
 					log.enabled = false;
+					rand_amt.enabled = false;
 					collect.SetActive (false);
 				}
 			}
@@ -115,15 +131,23 @@ public class GameStateGather : MonoBehaviour {
 
 	public void collectItem () {
 		if (item == 1) {
-			SaveManager.GameDataSave.numBrick++;
+			SaveManager.GameDataSave.numBrick += amt;
 			GPS_curr.text = SaveManager.GameDataSave.numBrick.ToString();
 		} else if (item == 2) {
-			SaveManager.GameDataSave.numOre++;
+			SaveManager.GameDataSave.numOre += amt;
 			GPS_curr.text = SaveManager.GameDataSave.numOre.ToString();
 		} else {
-			SaveManager.GameDataSave.numWood++;
+			SaveManager.GameDataSave.numWood += amt;
 			GPS_curr.text = SaveManager.GameDataSave.numWood.ToString();
 		}
+		ore_count.text = "Ore: " + SaveManager.GameDataSave.numOre.ToString() + "x";
+		brick_count.text = "Brick: " + SaveManager.GameDataSave.numBrick.ToString() + "x";
+		log_count.text = "Wood: " + SaveManager.GameDataSave.numWood.ToString() + "x";
+		collected = false;
+		lat = Random.Range(12F, 15F)/100000;
+		longitude = Random.Range(12F, 15F)/10000000;
+		lat = lat + Input.location.lastData.latitude;
+		longitude = longitude + Input.location.lastData.longitude;
 	}
 
 	// Update is called once per frame
