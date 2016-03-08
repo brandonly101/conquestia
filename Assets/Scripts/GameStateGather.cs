@@ -21,6 +21,8 @@ public class GameStateGather : MonoBehaviour {
 	public Text brick_count;
 	public Text rand_amt;
 	int amt = 0;
+	public Text success;
+	public GameObject tryAgain;
 
 
 	IEnumerator Start () {
@@ -45,6 +47,8 @@ public class GameStateGather : MonoBehaviour {
 		log.enabled = false;
 		collect.SetActive(false);
 		rand_amt.enabled = false;
+		success.enabled = false;
+		tryAgain.SetActive (false);
 
 		// First, check if user has location service enabled
 		if (!Input.location.isEnabledByUser) {
@@ -105,7 +109,7 @@ public class GameStateGather : MonoBehaviour {
 			if (!collected) {
 				GPS_curr.text = "Current Location: " + curr_lat + " " + curr_long;
 				if ((curr_lat < lat + range && curr_lat > lat - range) && (curr_long < longitude + range && curr_long > longitude - range)) {
-					GPS_curr.text = "YOU MADE IT!!!!!!";
+					//GPS_curr.text = "YOU MADE IT!!!!!!";
 					collected = true;
 					if (item == 1)
 						brick.enabled = true;
@@ -132,22 +136,33 @@ public class GameStateGather : MonoBehaviour {
 	public void collectItem () {
 		if (item == 1) {
 			SaveManager.GameDataSave.numBrick += amt;
-			GPS_curr.text = SaveManager.GameDataSave.numBrick.ToString();
+			//GPS_curr.text = SaveManager.GameDataSave.numBrick.ToString();
 		} else if (item == 2) {
 			SaveManager.GameDataSave.numOre += amt;
-			GPS_curr.text = SaveManager.GameDataSave.numOre.ToString();
+			//GPS_curr.text = SaveManager.GameDataSave.numOre.ToString();
 		} else {
 			SaveManager.GameDataSave.numWood += amt;
-			GPS_curr.text = SaveManager.GameDataSave.numWood.ToString();
+			//GPS_curr.text = SaveManager.GameDataSave.numWood.ToString();
 		}
 		ore_count.text = "Ore: " + SaveManager.GameDataSave.numOre.ToString() + "x";
 		brick_count.text = "Brick: " + SaveManager.GameDataSave.numBrick.ToString() + "x";
 		log_count.text = "Wood: " + SaveManager.GameDataSave.numWood.ToString() + "x";
-		collected = false;
+		success.enabled = true;
+		tryAgain.SetActive (true);
+		brick.enabled = false;
+		rock.enabled = false;
+		log.enabled = false;
+		rand_amt.enabled = false;
+	}
+
+	public void retry () {
 		lat = Random.Range(12F, 15F)/100000;
 		longitude = Random.Range(12F, 15F)/10000000;
 		lat = lat + Input.location.lastData.latitude;
 		longitude = longitude + Input.location.lastData.longitude;
+		collected = false;
+		success.enabled = false;
+		tryAgain.SetActive (false);
 	}
 
 	// Update is called once per frame
