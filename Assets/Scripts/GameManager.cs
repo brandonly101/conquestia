@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 
@@ -32,7 +31,7 @@ public class GameManager : MonoBehaviour {
 	public void StartGameNewCancel () {
 		GUIMainMenu.transform.GetChild(1).gameObject.SetActive(true);
 		GUIMainMenu.transform.GetChild(2).gameObject.SetActive(true);
-		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(false);
+		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(false); 
 	}
 
     public void StartGameContinue () {

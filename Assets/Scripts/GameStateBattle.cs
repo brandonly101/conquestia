@@ -57,7 +57,7 @@ public class GameStateBattle : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
         VHousesPlayer = new List<GameObject>();
-		VHousesEnemy = new List<GameObject>();
+//		VHousesEnemy = new List<GameObject>();
 		BuildPlayer = new List<GameObject>();
 		BuildEnemy = new List<GameObject>();
 
@@ -89,8 +89,8 @@ public class GameStateBattle : MonoBehaviour {
         // Set game variables.
         VPlayer = new List<GameObject>();
         VEnemy = new List<GameObject>();
-        healthPlayer = SaveManager.GameDataSave.healthVillageP;
-        healthEnemy = SaveManager.GameDataSave.healthVillageE;
+		healthPlayer = SaveManager.GameDataSave.healthVillage + SaveManager.GameDataSave.numArmory;
+		healthEnemy = GameDataLevels.numHouses(SaveManager.GameDataSave.GameLevel);
 
         // Enable GUI Elements.
         GUIBattle.SetActive(true);
@@ -140,19 +140,17 @@ public class GameStateBattle : MonoBehaviour {
 			foreach (GameObject villager in VEnemy) {
 				villager.GetComponent<Villager>().Die();
 			}
+
+			SaveManager.GameSave();
 		}
     }
 
     // Private functions.
     void spawnEnemies () {
-		for (int i = 0; i < 5; i++) {
-			GameObject house = (GameObject) Instantiate(
-				Resources.Load("VillagerHouseEnemy"),
-				new Vector3(50.0f, 0.0f, ((float) i) * 10.0f + 2.5f),
-				new Quaternion(0.0f, 180.0f, 0.0f, 0.0f)
-			);
-			BuildEnemy.Add(house);
-			VHousesEnemy.Add(house);
+		VHousesEnemy = GameDataLevels.initEnemyHouses(SaveManager.GameDataSave.GameLevel);
+
+		// Manage enemy houses.
+		foreach (GameObject house in VHousesEnemy) {
 			house.GetComponent<VillageHouse>().gameStateBattle = this;
 		}
 	}

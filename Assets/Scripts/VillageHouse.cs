@@ -4,18 +4,12 @@ using System.Collections.Generic;
 
 public class VillageHouse : MonoBehaviour {
 
-	public GameStateBuild gameStateBuild;
 	public GameStateBattle gameStateBattle;
 
 	public bool battleMode;
 	public bool isPlayer;
 
 	GameObject villager;
-
-    // Use this for initialization
-    void Start () {
-		
-    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -38,6 +32,7 @@ public class VillageHouse : MonoBehaviour {
 		}
 	}
 
+	// Private members.
 	GameObject spawnVillager () {
 		Transform spawnPoint = this.transform.Find("SpawnPoint");
 		if (isPlayer) {

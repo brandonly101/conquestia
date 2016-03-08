@@ -9,8 +9,7 @@ public class GameStateBuild : MonoBehaviour {
     public GameObject GUIBuild;
 
     // Private variables.
-    List<GameObject> VHousesPlayer;
-	List<GameObject> BuildPlayer;
+	List<GameObject> BuildingPlayer;
     bool isBuilding;
     GameObject ObjectPrebuild;
     Vector3 PrebuildPos;
@@ -20,8 +19,6 @@ public class GameStateBuild : MonoBehaviour {
     public void buildSpawn () {
         if (buildType == 0 && enoughResources(buildType)) {
             GameObject villageHouse = cleanSpawnObject("VillagerHousePlayer", PrebuildPos);
-            VHousesPlayer.Add(villageHouse);
-            villageHouse.GetComponent<VillageHouse>().gameStateBuild = this;
             SaveManager.GameDataSave.numWood -= 1;
             SaveManager.GameDataSave.numBrick -= 4;
             SaveManager.GameDataSave.numOre -= 1;
@@ -91,8 +88,7 @@ public class GameStateBuild : MonoBehaviour {
     // Use this for initialization
     void Awake () {
         buildType = 0;
-        VHousesPlayer = new List<GameObject>();
-		BuildPlayer = new List<GameObject>();
+		BuildingPlayer = new List<GameObject>();
 
         // Disable the build GUI, for now.
         GUIBuild.SetActive(false);
@@ -107,16 +103,7 @@ public class GameStateBuild : MonoBehaviour {
                 new Vector3(SaveManager.GameDataSave.buildingPos[i][0], SaveManager.GameDataSave.buildingPos[i][1], SaveManager.GameDataSave.buildingPos[i][2]),
                 new Quaternion(0.0f, 0.0f, 0.0f, 0.0f)
             );
-			BuildPlayer.Add(building);
-            if (resourceName == "VillagerHousePlayer") {
-				VHousesPlayer.Add(building);
-				VillageHouse buildingScript = building.GetComponent<VillageHouse>();
-				buildingScript.gameStateBuild = this;
-            }
-        }
-        foreach (GameObject house in VHousesPlayer) {
-            VillageHouse houseScript = house.GetComponent<VillageHouse>();
-            houseScript.gameStateBuild = this;
+			BuildingPlayer.Add(building);
         }
 		GameManager.instance.MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
 
@@ -182,8 +169,12 @@ public class GameStateBuild : MonoBehaviour {
 		GUIBuild.transform.GetChild(3).gameObject.SetActive(false);
 		GUIBuild.transform.GetChild(4).gameObject.SetActive(!mode);
 
-        // Set the text for the current level.
-        GUIBuild.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Level " + SaveManager.GameDataSave.GameLevel;
+        // Set the text for the current level, village strength, and villager health.
+		GUIBuild.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = "Level " + SaveManager.GameDataSave.GameLevel;
+		GUIBuild.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Text>().text = "Village Strenth - " +
+			(SaveManager.GameDataSave.healthVillage + SaveManager.GameDataSave.numFarm);
+		GUIBuild.transform.GetChild(0).GetChild(2).gameObject.GetComponent<Text>().text = "Villager Health - " +
+			(SaveManager.GameDataSave.healthVillager + SaveManager.GameDataSave.numArmory);
 
 		// Set the text for the current resources.
 		GameObject GUIResources = GUIBuild.transform.GetChild(1).GetChild(1).gameObject;
@@ -193,13 +184,17 @@ public class GameStateBuild : MonoBehaviour {
 			"Ore - " + SaveManager.GameDataSave.numOre + "x";
 
 		// Set the text for the building to build.
+		GameObject GUIResourcesReq = GUIBuild.transform.GetChild(2).GetChild(1).GetChild(1).gameObject;
 		string buildingTitle;
 		if (buildType == 0) {
 			buildingTitle = "House";
+			GUIResourcesReq.GetComponent<Text>().text = "Wood - 1x\n\nBrick - 4x\n\nOre - 1x";
 		} else if (buildType == 1) {
 			buildingTitle = "Armory";
+			GUIResourcesReq.GetComponent<Text>().text = "Wood - 1x\n\nBrick - 2x\n\nOre - 3x";
 		} else {
 			buildingTitle = "Farm";
+			GUIResourcesReq.GetComponent<Text>().text = "Wood - 3x\n\nBrick - 1x\n\nOre - 1x";
 		}
 		GameObject GUIBuildMenuText = GUIBuild.transform.GetChild(2).GetChild(0).GetChild(1).gameObject;
 		GUIBuildMenuText.GetComponent<Text>().text = buildingTitle;
@@ -209,6 +204,13 @@ public class GameStateBuild : MonoBehaviour {
         SaveManager.GameDataSave.buildingPos.Add(new float[3] { pos.x, pos.y, pos.z });
         SaveManager.GameDataSave.buildingName.Add(name);
         SaveManager.GameDataSave.buildingNum++;
+		if (name == "VillagerHousePlayer") {
+			SaveManager.GameDataSave.numHouse++;
+		} else if (name == "Armory") {
+			SaveManager.GameDataSave.numArmory++;
+		} else {
+			SaveManager.GameDataSave.numFarm++;
+		}
     }
 
     IEnumerator GUIDisableOverTime (float time) {
@@ -219,11 +221,11 @@ public class GameStateBuild : MonoBehaviour {
     // Do things when this MonoBehavior is disabled.
     void OnDisable () {
         // Remove the village houses.
-		foreach (GameObject building in BuildPlayer) {
+		foreach (GameObject building in BuildingPlayer) {
 			Destroy(building);
         }
-		BuildPlayer.Clear();
-        VHousesPlayer.Clear();
+		BuildingPlayer.Clear();
+
         // Disable GUI elements.
         if (GUIBuild) {
             GUIBuild.SetActive(false);

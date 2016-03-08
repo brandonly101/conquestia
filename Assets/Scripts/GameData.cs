@@ -6,34 +6,20 @@ using System.Collections.Generic;
 public class GameData {
 
     // Game data variables.
-	public int GameLevel;
-	public int numWood;
-	public int numBrick;
-	public int numOre;
-    public int healthVillageP;
-    public int healthVillageE;
+	public int GameLevel = 1;
+	public int numWood = 50;
+	public int numBrick = 50;
+	public int numOre = 50;
+    public int healthVillage = 20;
+	public int healthVillager = 5;
+	public int numHouse = 0;
+	public int numArmory = 0;
+	public int numFarm = 0;
 
     // Variables that define player building properties.
-    public List<float[]> buildingPos;
-    public List<string> buildingName;
-    public int buildingNum;
-
-    public GameData () {
-		// Initialize what level the player is at.
-		GameLevel = 1;
-
-		// Initialize game data information.
-        numWood = 50;
-        numBrick = 50;
-        numOre = 50;
-        healthVillageP = 20;
-        healthVillageE = 20;
-
-		// Initialize player building information.
-        buildingPos = new List<float[]>();
-        buildingName = new List<string>();
-        buildingNum = 0;
-    }
+	public List<float[]> buildingPos = new List<float[]>();
+	public List<string> buildingName = new List<string>();
+    public int buildingNum = 0;
 
     // Debug functions.
     public void printDataConstruct () {

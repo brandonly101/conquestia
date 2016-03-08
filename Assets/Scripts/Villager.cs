@@ -3,15 +3,15 @@ using System.Collections;
 
 public class Villager : MonoBehaviour {
 
-	public Vector3 posTarget;
-	public float speed;
-	public int health;
 	public GameObject ObjectTarget;
 	public GameObject ExplodePrefab;
+	public bool isPlayer;
+	public bool alive;
+	public int health;
 
 	Animator anim;
 	float timer;
-	public bool alive;
+	float speed;
 
     // Function that kills the villager.
     public void Die () {
@@ -41,6 +41,14 @@ public class Villager : MonoBehaviour {
 		anim = GetComponentInChildren<Animator>();
 		timer = 0.0f;
 		alive = true;
+		speed = 0.07f;
+
+		// Set villager health.
+		if (isPlayer) {
+			health = SaveManager.GameDataSave.healthVillager + SaveManager.GameDataSave.numArmory;
+		} else {
+			health = 5;
+		}
 	}
 	
 	// Update is called once per frame
