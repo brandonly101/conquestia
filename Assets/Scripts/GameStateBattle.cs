@@ -148,6 +148,7 @@ public class GameStateBattle : MonoBehaviour {
     // Private functions.
     void spawnEnemies () {
 		VHousesEnemy = GameDataLevels.initEnemyHouses(SaveManager.GameDataSave.GameLevel);
+		BuildEnemy = VHousesEnemy;
 
 		// Manage enemy houses.
 		foreach (GameObject house in VHousesEnemy) {

@@ -7,6 +7,7 @@ public class GameStateBuild : MonoBehaviour {
 
     // Public variables.
     public GameObject GUIBuild;
+	public GameObject GUIBuildMenu;
 
     // Private variables.
 	List<GameObject> BuildingPlayer;
@@ -36,7 +37,7 @@ public class GameStateBuild : MonoBehaviour {
 			SaveManager.GameDataSave.numOre -= 1;
 			saveBuildingProperties(farm.transform.position, "Farm");
 		} else {
-            GUIBuild.transform.GetChild(3).gameObject.SetActive(true);
+            GUIBuildMenu.transform.GetChild(7).gameObject.SetActive(true);
             StartCoroutine(GUIDisableOverTime(3.0f));
             return;
         }
@@ -91,7 +92,8 @@ public class GameStateBuild : MonoBehaviour {
 		BuildingPlayer = new List<GameObject>();
 
         // Disable the build GUI, for now.
-        GUIBuild.SetActive(false);
+		GUIBuild.SetActive(false);
+		GUIBuildMenu.SetActive(false);
     }
 
     void OnEnable () {
@@ -108,7 +110,6 @@ public class GameStateBuild : MonoBehaviour {
 		GameManager.instance.MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
 
         // Enable GUI elements.
-        GUIBuild.SetActive(true);
         setBuildMenuGUI(false);
     }
 
@@ -163,11 +164,9 @@ public class GameStateBuild : MonoBehaviour {
 	}
 
 	void setBuildMenuGUI (bool mode) {
-        GUIBuild.transform.GetChild(0).gameObject.SetActive(!mode);
-		GUIBuild.transform.GetChild(1).gameObject.SetActive(true);
-        GUIBuild.transform.GetChild(2).gameObject.SetActive(mode);
-		GUIBuild.transform.GetChild(3).gameObject.SetActive(false);
-		GUIBuild.transform.GetChild(4).gameObject.SetActive(!mode);
+		GUIBuild.SetActive(!mode);
+		GUIBuildMenu.SetActive(mode);
+		GUIBuildMenu.transform.GetChild(7).gameObject.SetActive(false);
 
         // Set the text for the current level, village strength, and villager health.
 		GUIBuild.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = "Level " + SaveManager.GameDataSave.GameLevel;
@@ -177,26 +176,31 @@ public class GameStateBuild : MonoBehaviour {
 			(SaveManager.GameDataSave.healthVillager + SaveManager.GameDataSave.numArmory);
 
 		// Set the text for the current resources.
-		GameObject GUIResources = GUIBuild.transform.GetChild(1).GetChild(1).gameObject;
+		GameObject GUIResources = GUIBuild.transform.GetChild(1).GetChild(0).gameObject;
 		GUIResources.GetComponent<Text>().text =
-			"Wood - " + SaveManager.GameDataSave.numWood + "x\n\n" +
-			"Brick - " + SaveManager.GameDataSave.numBrick + "x\n\n" +
-			"Ore - " + SaveManager.GameDataSave.numOre + "x";
+			"Wood: " + SaveManager.GameDataSave.numWood + "x\n\n" +
+			"Brick: " + SaveManager.GameDataSave.numBrick + "x\n\n" +
+			"Ore: " + SaveManager.GameDataSave.numOre + "x";
+		GUIResources = GUIBuildMenu.transform.GetChild(0).GetChild(0).gameObject;
+		GUIResources.GetComponent<Text>().text =
+			"Wood: " + SaveManager.GameDataSave.numWood + "x\n\n" +
+			"Brick: " + SaveManager.GameDataSave.numBrick + "x\n\n" +
+			"Ore: " + SaveManager.GameDataSave.numOre + "x";
 
 		// Set the text for the building to build.
-		GameObject GUIResourcesReq = GUIBuild.transform.GetChild(2).GetChild(1).GetChild(1).gameObject;
+		GameObject GUIResourcesReq = GUIBuildMenu.transform.GetChild(1).GetChild(1).gameObject;
 		string buildingTitle;
 		if (buildType == 0) {
 			buildingTitle = "House";
-			GUIResourcesReq.GetComponent<Text>().text = "Wood - 1x\n\nBrick - 4x\n\nOre - 1x";
+			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 4x\n\nOre: 1x";
 		} else if (buildType == 1) {
 			buildingTitle = "Armory";
-			GUIResourcesReq.GetComponent<Text>().text = "Wood - 1x\n\nBrick - 2x\n\nOre - 3x";
+			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 2x\n\nOre: 3x";
 		} else {
 			buildingTitle = "Farm";
-			GUIResourcesReq.GetComponent<Text>().text = "Wood - 3x\n\nBrick - 1x\n\nOre - 1x";
+			GUIResourcesReq.GetComponent<Text>().text = "Wood: 3x\n\nBrick: 1x\n\nOre: 1x";
 		}
-		GameObject GUIBuildMenuText = GUIBuild.transform.GetChild(2).GetChild(0).GetChild(1).gameObject;
+		GameObject GUIBuildMenuText = GUIBuildMenu.transform.GetChild(1).GetChild(0).gameObject;
 		GUIBuildMenuText.GetComponent<Text>().text = buildingTitle;
     }
 
@@ -215,7 +219,7 @@ public class GameStateBuild : MonoBehaviour {
 
     IEnumerator GUIDisableOverTime (float time) {
         yield return new WaitForSeconds(time);
-        GUIBuild.transform.GetChild(3).gameObject.SetActive(false);
+        GUIBuildMenu.transform.GetChild(7).gameObject.SetActive(false);
     }
 
     // Do things when this MonoBehavior is disabled.

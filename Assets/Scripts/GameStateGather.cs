@@ -3,33 +3,48 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class GameStateGather : MonoBehaviour {
+
+	public GameObject GUIGather;
+	public GameObject Terrain;
+	public Text ore_count;
+	public Text log_count;
+	public Text brick_count;
+	public Text rand_amt;
+	public Text success;
+	public GameObject tryAgain;
+	public GameObject buildButton;
+
 	Text GPS_dest;
 	Text GPS_curr;
 	RawImage brick;
 	RawImage rock;
 	RawImage log;
 	GameObject collect;
-	int item = Random.Range(1, 4);
-	float lat = Random.Range(8F, 10F);
-	float longitude = Random.Range(8F, 10F);
+	int item;
+	float lat;
+	float longitude;
 	float curr_lat;
 	float curr_long;
 	float range = 0.0001f;
 	bool collected = false;
-	public Text ore_count;
-	public Text log_count;
-	public Text brick_count;
-	public Text rand_amt;
 	int amt = 0;
-	public Text success;
-	public GameObject tryAgain;
 
+	void Awake () {
+		// Disable the build GUI, for now.
+		GUIGather.SetActive(false);
+	}
+
+	void OnEnable () {
+
+
+		// Enable GUI elements.
+		GUIGather.SetActive(true);
+	}
 
 	IEnumerator Start () {
-		// Hacky workaround fix
-
-		SaveManager.GameNew();
-		SaveManager.GameDataSave.printData();
+		item = Random.Range(1, 4);
+		lat = Random.Range(8F, 10F);
+		longitude = Random.Range(8F, 10F);
 
 		GPS_dest = GameObject.Find("GPS_dest").GetComponent<Text>();
 		GPS_curr = GameObject.Find("GPS_curr").GetComponent<Text>();
@@ -168,6 +183,13 @@ public class GameStateGather : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		StartCoroutine(Location());
+	}
+
+	void OnDisable () {
+		// Disable GUI elements.
+		if (GUIGather) {
+			GUIGather.SetActive(false);
+		}
 	}
 }
 

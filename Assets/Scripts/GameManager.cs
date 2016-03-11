@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour {
 	public static GameManager instance = null;
 
     // References to the game states.
+	public GameStateGather gather;
     public GameStateBuild build;
     public GameStateBattle battle;
 	public GameObject MainCamera;
@@ -40,14 +41,23 @@ public class GameManager : MonoBehaviour {
         StartBuildMode();
     }
 
+	public void StartGatherMode () {
+		// Activate and deactivate the correct game states.
+		gather.enabled = true;
+		build.enabled = false;
+		battle.enabled = false;
+	}
+
 	public void StartBuildMode () {
         // Activate and deactivate the correct game states.
+		gather.enabled = false;
         build.enabled = true;
         battle.enabled = false;
 	}
 
 	public void StartBattleMode () {
         // Activate and deactivate the correct game states.
+		gather.enabled = false;
         build.enabled = false;
         battle.enabled = true;
 }
@@ -70,7 +80,8 @@ public class GameManager : MonoBehaviour {
 
 	void InitGame () {
 		// Reference and object initializations.
-        build = GetComponent<GameStateBuild>();
+		gather = GetComponent<GameStateGather>();
+		build = GetComponent<GameStateBuild>();
         battle = GetComponent<GameStateBattle>();
         build.enabled = false;
         battle.enabled = false;
