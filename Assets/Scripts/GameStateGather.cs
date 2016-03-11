@@ -168,6 +168,7 @@ public class GameStateGather : MonoBehaviour {
 		rock.enabled = false;
 		log.enabled = false;
 		rand_amt.enabled = false;
+		item = Random.Range(1, 4);
 	}
 
 	public void retry () {
