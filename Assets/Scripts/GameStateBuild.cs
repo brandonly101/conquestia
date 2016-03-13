@@ -188,20 +188,20 @@ public class GameStateBuild : MonoBehaviour {
 			"Ore: " + SaveManager.GameDataSave.numOre + "x";
 
 		// Set the text for the building to build.
-		GameObject GUIResourcesReq = GUIBuildMenu.transform.GetChild(1).GetChild(1).gameObject;
-		string buildingTitle;
-		if (buildType == 0) {
-			buildingTitle = "House";
-			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 4x\n\nOre: 1x";
-		} else if (buildType == 1) {
-			buildingTitle = "Armory";
-			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 2x\n\nOre: 3x";
-		} else {
-			buildingTitle = "Farm";
-			GUIResourcesReq.GetComponent<Text>().text = "Wood: 3x\n\nBrick: 1x\n\nOre: 1x";
-		}
-		GameObject GUIBuildMenuText = GUIBuildMenu.transform.GetChild(1).GetChild(0).gameObject;
-		GUIBuildMenuText.GetComponent<Text>().text = buildingTitle;
+//		GameObject GUIResourcesReq = GUIBuildMenu.transform.GetChild(1).GetChild(0).gameObject;
+//		string buildingTitle;
+//		if (buildType == 0) {
+//			buildingTitle = "House";
+//			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 4x\n\nOre: 1x";
+//		} else if (buildType == 1) {
+//			buildingTitle = "Armory";
+//			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 2x\n\nOre: 3x";
+//		} else {
+//			buildingTitle = "Farm";
+//			GUIResourcesReq.GetComponent<Text>().text = "Wood: 3x\n\nBrick: 1x\n\nOre: 1x";
+//		}
+//		GameObject GUIBuildMenuText = GUIBuildMenu.transform.GetChild(1).GetChild(0).gameObject;
+//		GUIBuildMenuText.GetComponent<Text>().text = buildingTitle;
     }
 
     void saveBuildingProperties (Vector3 pos, string name) {

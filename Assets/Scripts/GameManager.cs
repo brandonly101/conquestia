@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour {
     public GameStateBattle battle;
 	public GameObject MainCamera;
 	public GameObject ImageTarget;
+	public GameObject ImageTargetGather;
 
 	// Main game GUI.
 	public GameObject GUIMainMenu;
@@ -46,13 +47,17 @@ public class GameManager : MonoBehaviour {
 		gather.enabled = true;
 		build.enabled = false;
 		battle.enabled = false;
+		ImageTarget.SetActive(false);
+		ImageTargetGather.SetActive(true);
 	}
 
 	public void StartBuildMode () {
         // Activate and deactivate the correct game states.
 		gather.enabled = false;
         build.enabled = true;
-        battle.enabled = false;
+		battle.enabled = false;
+		ImageTarget.SetActive(true);
+		ImageTargetGather.SetActive(false);
 	}
 
 	public void StartBattleMode () {
