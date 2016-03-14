@@ -36,9 +36,9 @@ public class VillageHouse : MonoBehaviour {
 	GameObject spawnVillager () {
 		Transform spawnPoint = this.transform.Find("SpawnPoint");
 		if (isPlayer) {
-			villager = Instantiate (Resources.Load ("VillagerP"), spawnPoint.position, spawnPoint.rotation) as GameObject;
+			villager = Instantiate (Resources.Load ("VillagerPGuy"), spawnPoint.position, spawnPoint.rotation) as GameObject;
 		} else {
-			villager = Instantiate (Resources.Load ("VillagerE"), spawnPoint.position, spawnPoint.rotation) as GameObject;
+			villager = Instantiate (Resources.Load ("VillagerEGuy"), spawnPoint.position, spawnPoint.rotation) as GameObject;
 		}
 		return villager;
 	}

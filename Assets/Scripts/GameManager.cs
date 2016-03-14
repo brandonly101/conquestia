@@ -7,12 +7,14 @@ public class GameManager : MonoBehaviour {
 	public static GameManager instance = null;
 
     // References to the game states.
-	public GameStateGather gather;
-    public GameStateBuild build;
-    public GameStateBattle battle;
-	public GameObject MainCamera;
-	public GameObject ImageTarget;
+	public GameObject DirLight;
 	public GameObject ImageTargetGather;
+	public GameObject ModelGather;
+	public GameObject ImageTarget;
+	public GameObject ModelBuildBattle;
+	public GameStateGather gather;
+	public GameStateBuild build;
+	public GameStateBattle battle;
 
 	// Main game GUI.
 	public GameObject GUIMainMenu;
@@ -47,8 +49,11 @@ public class GameManager : MonoBehaviour {
 		gather.enabled = true;
 		build.enabled = false;
 		battle.enabled = false;
-		ImageTarget.SetActive(false);
 		ImageTargetGather.SetActive(true);
+		ModelGather.SetActive(true);
+		ImageTarget.SetActive(false);
+		ModelBuildBattle.SetActive(false);
+		DirLight.transform.eulerAngles = new Vector3(135.0f, 0.0f, 0.0f);
 	}
 
 	public void StartBuildMode () {
@@ -56,16 +61,23 @@ public class GameManager : MonoBehaviour {
 		gather.enabled = false;
         build.enabled = true;
 		battle.enabled = false;
-		ImageTarget.SetActive(true);
 		ImageTargetGather.SetActive(false);
+		ModelGather.SetActive(false);
+		ImageTarget.SetActive(true);
+		ModelBuildBattle.SetActive(true);
+		DirLight.transform.eulerAngles = new Vector3(45.0f, 0.0f, 0.0f);
 	}
 
 	public void StartBattleMode () {
         // Activate and deactivate the correct game states.
 		gather.enabled = false;
         build.enabled = false;
-        battle.enabled = true;
-}
+		battle.enabled = true;
+		ImageTargetGather.SetActive(false);
+		ModelGather.SetActive(false);
+		ImageTarget.SetActive(true);
+		ModelBuildBattle.SetActive(true);
+	}
 
 	// Use this for initialization
 	void Awake () {
@@ -88,11 +100,12 @@ public class GameManager : MonoBehaviour {
 		gather = GetComponent<GameStateGather>();
 		build = GetComponent<GameStateBuild>();
         battle = GetComponent<GameStateBattle>();
+		gather.enabled = false;
         build.enabled = false;
         battle.enabled = false;
 
-        ImageTarget.transform.position = new Vector3(-25.0f, 0, 25.0f);
-        MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
+		ImageTarget.SetActive(false);
+		ImageTargetGather.SetActive(false);
 
         // Enable GUI Elements.
 		GUIMainMenu.SetActive(true);

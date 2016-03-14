@@ -9,16 +9,16 @@ public class Villager : MonoBehaviour {
 	public bool alive;
 	public int health;
 
-	Animator anim;
+	public Animator anim;
 	float timer;
 	float speed;
 
     // Function that kills the villager.
     public void Die () {
-        foreach (MeshRenderer mesh in GetComponentsInChildren<MeshRenderer>()) {
+		foreach (SkinnedMeshRenderer mesh in GetComponentsInChildren<SkinnedMeshRenderer>()) {
             mesh.enabled = false;
         }
-        GetComponent<AudioSource>().Play();
+		GetComponent<AudioSource>().Play();
         GameObject exp = Instantiate(ExplodePrefab, transform.position, transform.rotation) as GameObject;
         Destroy(exp, 1.0f);
         Destroy(this.gameObject, 1.0f);
@@ -42,10 +42,11 @@ public class Villager : MonoBehaviour {
 		timer = 0.0f;
 		alive = true;
 		speed = 0.07f;
+		anim.SetFloat("Speed", 1.0f);
 
 		// Set villager health.
 		if (isPlayer) {
-			health = SaveManager.GameDataSave.healthVillager + SaveManager.GameDataSave.numArmory;
+			health = SaveManager.GameDataSave.healthVillager + SaveManager.GameDataSave.numArmory * GameDataLevels.healthArmory;
 		} else {
 			health = 5;
 		}
@@ -57,7 +58,9 @@ public class Villager : MonoBehaviour {
 			timer += Time.deltaTime;
             if (ObjectTarget) {
                 if (Vector3.Distance(transform.position, ObjectTarget.transform.position) > 1.0f) {
+					anim.SetBool("Attack", false);
                     MoveTo(ObjectTarget.transform.position, speed);
+					transform.forward = Vector3.Normalize(ObjectTarget.transform.position - transform.position);
                 } else {
                     anim.SetBool("Attack", true);
                     Attack();

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
   <Tracking>
-    <ImageTarget name="ConquoriaImageTarget" size="50.000000 72.016464" />
+    <ImageTarget name="ConquoriaImageTarget" size="30.000000 20.828571" />
+    <ImageTarget name="funny-facebook-logo-3" size="10.000000 5.625000" />
+    <ImageTarget name="mrCoffee" size="10.000000 8.461538" />
+    <ImageTarget name="youtube-logo-full_color" size="10.000000 5.626866" />
+    <ImageTarget name="sprite1" size="10.000000 3.705882" />
+    <ImageTarget name="Lincoln" size="1.000000 0.439878" />
   </Tracking>
 </QCARConfig>

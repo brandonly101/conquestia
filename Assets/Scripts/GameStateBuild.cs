@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class GameStateBuild : MonoBehaviour {
 
     // Public variables.
-    public GameObject GUIBuild;
+	public GameObject GUIBuild;
 	public GameObject GUIBuildMenu;
 
     // Private variables.
@@ -18,29 +18,31 @@ public class GameStateBuild : MonoBehaviour {
 
     // Public functions.
     public void buildSpawn () {
+		GameObject building;
         if (buildType == 0 && enoughResources(buildType)) {
-            GameObject villageHouse = cleanSpawnObject("VillagerHousePlayer", PrebuildPos);
+            building = cleanSpawnObject("VillagerHousePlayer", PrebuildPos);
             SaveManager.GameDataSave.numWood -= 1;
             SaveManager.GameDataSave.numBrick -= 4;
             SaveManager.GameDataSave.numOre -= 1;
-            saveBuildingProperties(villageHouse.transform.position, "VillagerHousePlayer");
+			saveBuildingProperties(building.transform.position, "VillagerHousePlayer");
         } else if (buildType == 1 && enoughResources(buildType)) {
-            GameObject farm = cleanSpawnObject("Armory", PrebuildPos);
+			building = cleanSpawnObject("Armory", PrebuildPos);
 			SaveManager.GameDataSave.numWood -= 1;
 			SaveManager.GameDataSave.numBrick -= 2;
 			SaveManager.GameDataSave.numOre -= 3;
-            saveBuildingProperties(farm.transform.position, "Armory");
+			saveBuildingProperties(building.transform.position, "Armory");
 		} else if (buildType == 2 && enoughResources(buildType)) {
-			GameObject farm = cleanSpawnObject("Farm", PrebuildPos);
+			building = cleanSpawnObject("Farm", PrebuildPos);
 			SaveManager.GameDataSave.numWood -= 3;
 			SaveManager.GameDataSave.numBrick -= 1;
 			SaveManager.GameDataSave.numOre -= 1;
-			saveBuildingProperties(farm.transform.position, "Farm");
+			saveBuildingProperties(building.transform.position, "Farm");
 		} else {
             GUIBuildMenu.transform.GetChild(7).gameObject.SetActive(true);
             StartCoroutine(GUIDisableOverTime(3.0f));
             return;
         }
+		BuildingPlayer.Add(building);
         buildCancel();
         SaveManager.GameSave();
     }
@@ -78,8 +80,8 @@ public class GameStateBuild : MonoBehaviour {
         Physics.Raycast(ray, out hit, 1000f);
         Vector3 position = hit.point;
 
-        // Hacky way of making buildings spawn only on the X-Z plane.
-        if (position.y == 0.0f) {
+        // Hacky way of making buildings spawn only on the X-Z plane and on the player side.
+		if (position.y == 0.0f && position.x <= 0) {
             if (!isBuilding) {
                 buildMenu(position);
             }
@@ -107,7 +109,6 @@ public class GameStateBuild : MonoBehaviour {
             );
 			BuildingPlayer.Add(building);
         }
-		GameManager.instance.MainCamera.transform.position = new Vector3(-25.0f, 20.0f, -30.0f);
 
         // Enable GUI elements.
         setBuildMenuGUI(false);
@@ -171,9 +172,9 @@ public class GameStateBuild : MonoBehaviour {
         // Set the text for the current level, village strength, and villager health.
 		GUIBuild.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = "Level " + SaveManager.GameDataSave.GameLevel;
 		GUIBuild.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Text>().text = "Village Strenth - " +
-			(SaveManager.GameDataSave.healthVillage + SaveManager.GameDataSave.numFarm);
+			(SaveManager.GameDataSave.healthVillage + SaveManager.GameDataSave.numFarm * GameDataLevels.healthFarm);
 		GUIBuild.transform.GetChild(0).GetChild(2).gameObject.GetComponent<Text>().text = "Villager Health - " +
-			(SaveManager.GameDataSave.healthVillager + SaveManager.GameDataSave.numArmory);
+			(SaveManager.GameDataSave.healthVillager + SaveManager.GameDataSave.numArmory * GameDataLevels.healthArmory);
 
 		// Set the text for the current resources.
 		GameObject GUIResources = GUIBuild.transform.GetChild(1).GetChild(0).gameObject;
@@ -188,20 +189,14 @@ public class GameStateBuild : MonoBehaviour {
 			"Ore: " + SaveManager.GameDataSave.numOre + "x";
 
 		// Set the text for the building to build.
-//		GameObject GUIResourcesReq = GUIBuildMenu.transform.GetChild(1).GetChild(0).gameObject;
-//		string buildingTitle;
-//		if (buildType == 0) {
-//			buildingTitle = "House";
-//			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 4x\n\nOre: 1x";
-//		} else if (buildType == 1) {
-//			buildingTitle = "Armory";
-//			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 2x\n\nOre: 3x";
-//		} else {
-//			buildingTitle = "Farm";
-//			GUIResourcesReq.GetComponent<Text>().text = "Wood: 3x\n\nBrick: 1x\n\nOre: 1x";
-//		}
-//		GameObject GUIBuildMenuText = GUIBuildMenu.transform.GetChild(1).GetChild(0).gameObject;
-//		GUIBuildMenuText.GetComponent<Text>().text = buildingTitle;
+		GameObject GUIResourcesReq = GUIBuildMenu.transform.GetChild(1).GetChild(0).gameObject;
+		if (buildType == 0) {
+			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 4x\n\nOre: 1x";
+		} else if (buildType == 1) {
+			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 2x\n\nOre: 3x";
+		} else {
+			GUIResourcesReq.GetComponent<Text>().text = "Wood: 3x\n\nBrick: 1x\n\nOre: 1x";
+		}
     }
 
     void saveBuildingProperties (Vector3 pos, string name) {

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class GameStateBattle : MonoBehaviour {
 
     // Public variables.
-    public GameObject GUIBattle;
+	public GameObject GUIBattle;
 
     // Private game variables.
     List<GameObject> VPlayer;
@@ -57,7 +57,6 @@ public class GameStateBattle : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
         VHousesPlayer = new List<GameObject>();
-//		VHousesEnemy = new List<GameObject>();
 		BuildPlayer = new List<GameObject>();
 		BuildEnemy = new List<GameObject>();
 
@@ -89,7 +88,7 @@ public class GameStateBattle : MonoBehaviour {
         // Set game variables.
         VPlayer = new List<GameObject>();
         VEnemy = new List<GameObject>();
-		healthPlayer = SaveManager.GameDataSave.healthVillage + SaveManager.GameDataSave.numArmory;
+		healthPlayer = SaveManager.GameDataSave.healthVillage + SaveManager.GameDataSave.numFarm * GameDataLevels.healthFarm;
 		healthEnemy = GameDataLevels.numHouses(SaveManager.GameDataSave.GameLevel);
 
         // Enable GUI Elements.
@@ -104,8 +103,6 @@ public class GameStateBattle : MonoBehaviour {
         HealthBarEnemy = GUIBattle.transform.GetChild(1).gameObject.GetComponent<Slider>();
         HealthBarPlayer.maxValue = healthPlayer;
         HealthBarEnemy.maxValue = healthEnemy;
-
-		GameManager.instance.MainCamera.transform.position = new Vector3(25.0f, 20.0f, -30.0f);
 
         // Test for now...
         spawnEnemies();

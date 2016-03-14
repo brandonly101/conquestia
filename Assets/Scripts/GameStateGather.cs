@@ -11,12 +11,11 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 	public GameObject GUIAgain;
 	public Text GUISuccess;
 	public Text GUISearching;
-	public RawImage GUIWood;
-	public RawImage GUIBrick;
-	public RawImage GUIOre;
+	public GameObject ModelWood;
+	public GameObject ModelBrick;
+	public GameObject ModelOre;
 	public Text GUIAmount;
 	public ImageTargetBehaviour ImageTargetTemplate;
-	public GameObject Terrain;
 	public CloudRecoBehaviour mCloudRecoBehaviour;
 
 	bool mIsScanning = false;
@@ -39,8 +38,7 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 
 	public void OnStateChanged(bool scanning) {
 		mIsScanning = scanning;
-		if (scanning)
-		{
+		if (scanning) {
 			// clear all known trackables
 			ObjectTracker tracker = TrackerManager.Instance.GetTracker<ObjectTracker>();
 			tracker.TargetFinder.ClearTrackables(false);
@@ -68,19 +66,19 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 
 	public void onPressCollect () {
 		if (item == 1) {
-			SaveManager.GameDataSave.numBrick += amt;
-		} else if (item == 2) {
-			SaveManager.GameDataSave.numOre += amt;
-		} else {
 			SaveManager.GameDataSave.numWood += amt;
+		} else if (item == 2) {
+			SaveManager.GameDataSave.numBrick += amt;
+		} else {
+			SaveManager.GameDataSave.numOre += amt;
 		}
 		collected = true;
 		GUIAgain.SetActive(true);
 		GUICollect.SetActive(false);
-		GUIBrick.enabled = false;
-		GUIOre.enabled = false;
-		GUIWood.enabled = false;
-		GUIAmount.enabled = false;
+		ModelBrick.SetActive(false);
+		ModelOre.SetActive(false);
+		ModelWood.SetActive(false);
+		GUIAmount.enabled = true;
 		GUISuccess.enabled = true;
 
 		// Update the current resources GUI.
@@ -96,9 +94,10 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 		mCloudRecoBehaviour.CloudRecoEnabled = true;
 		GUISearching.enabled = true;
 		GUISuccess.enabled = false;
+		GUIAmount.enabled = false;
 		item = Random.Range(1, 4);
 		amt = Random.Range(1, 4);
-		GUIAmount.text = "x " + amt.ToString ();
+		GUIAmount.text = amt.ToString() + "x";
 		SaveManager.GameSave();
 	}
 
@@ -107,20 +106,17 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 		if (mCloudRecoBehaviour) {
 			mCloudRecoBehaviour.RegisterEventHandler(this);
 		}
-
+		OnStateChanged(false);
 		GUIGather.SetActive(false);
 	}
 
 	void OnEnable () {
 		// clear all known trackables
-		ObjectTracker tracker = TrackerManager.Instance.GetTracker<ObjectTracker>();
-		tracker.TargetFinder.ClearTrackables(false);
-		mIsScanning = true;
+		OnStateChanged(true);
 		mCloudRecoBehaviour.CloudRecoEnabled = true;
 		item = Random.Range(1, 4);
 		amt = Random.Range(1, 4);
-		GUIAmount.text = "x " + amt.ToString ();
-		Terrain.SetActive(false);
+		GUIAmount.text = amt.ToString() + "x";
 
 		GUIGather.SetActive(true);
 		GUICurrRes.SetActive (true);
@@ -129,9 +125,9 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 		GUISearching.enabled = true;
 		GUISuccess.enabled = false;
 		GUIAmount.enabled = false;
-		GUIBrick.enabled = false;
-		GUIOre.enabled = false;
-		GUIWood.enabled = false;
+		ModelBrick.SetActive(false);
+		ModelOre.SetActive(false);
+		ModelWood.SetActive(false);
 
 		// Update the current resources GUI.
 		GUICurrRes.transform.GetChild(0).gameObject.GetComponent<Text>().text =
@@ -144,33 +140,36 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 		if (!mIsScanning) {
 			if (!collected) {
 				GUICollect.SetActive(true);
-				GUIAmount.enabled = true;
-				if (item == 1)
-					GUIBrick.enabled = true;
-				else if (item == 2)
-					GUIOre.enabled = true;
-				else if (item == 3)
-					GUIWood.enabled = true;
+				GameObject resource;
+				if (item == 1) {
+					resource = ModelWood;
+				} else if (item == 2) {
+					resource = ModelBrick;
+				} else {
+					resource = ModelOre;
+				}
+				resource.SetActive(true);
+				resource.transform.Rotate(Vector3.up * Time.deltaTime * 20.0f);
 			} else {
 				GUICollect.SetActive(false);
-				GUIBrick.enabled = false;
-				GUIOre.enabled = false;
-				GUIWood.enabled = false;
+				ModelBrick.SetActive(false);
+				ModelOre.SetActive(false);
+				ModelWood.SetActive(false);
 			}
 			GUISearching.enabled = false;
 		} else {
 			GUICollect.SetActive(false);
-			GUIBrick.enabled = false;
-			GUIOre.enabled = false;
-			GUIWood.enabled = false;
+			ModelBrick.SetActive(false);
+			ModelOre.SetActive(false);
+			ModelWood.SetActive(false);
 		}
 	}
 
 	void OnDisable () {
+		OnStateChanged(false);
+
+		// Set GUI elements.
 		GUIGather.SetActive(false);
-		if (Terrain) {
-			Terrain.SetActive (true);
-		}
 	}
 }
 
