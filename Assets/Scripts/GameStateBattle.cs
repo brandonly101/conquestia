@@ -7,6 +7,7 @@ public class GameStateBattle : MonoBehaviour {
 
     // Public variables.
 	public GameObject GUIBattle;
+    public GameObject GUIBattleWorld;
 
     // Private game variables.
     List<GameObject> VPlayer;
@@ -59,6 +60,7 @@ public class GameStateBattle : MonoBehaviour {
         VHousesPlayer = new List<GameObject>();
 		BuildPlayer = new List<GameObject>();
 		BuildEnemy = new List<GameObject>();
+        battle = false;
 
         // Disable the GUI on awake, for now.
         GUIBattle.SetActive(false);
@@ -93,21 +95,23 @@ public class GameStateBattle : MonoBehaviour {
 
         // Enable GUI Elements.
         GUIBattle.SetActive(true);
+        GUIBattleWorld.SetActive(true);
         GUIBattle.transform.GetChild(0).gameObject.SetActive(true);
-        GUIBattle.transform.GetChild(1).gameObject.SetActive(true);
+        GUIBattle.transform.GetChild(1).gameObject.SetActive(false);
 		GUIBattle.transform.GetChild(2).gameObject.SetActive(false);
 		GUIBattle.transform.GetChild(3).gameObject.SetActive(false);
 		GUIBattle.transform.GetChild(4).gameObject.SetActive(false);
 
-        HealthBarPlayer = GUIBattle.transform.GetChild(0).gameObject.GetComponent<Slider>();
-        HealthBarEnemy = GUIBattle.transform.GetChild(1).gameObject.GetComponent<Slider>();
+        HealthBarPlayer = GUIBattleWorld.transform.GetChild(0).gameObject.GetComponent<Slider>();
+        HealthBarEnemy = GUIBattleWorld.transform.GetChild(1).gameObject.GetComponent<Slider>();
+        HealthBarPlayer.gameObject.transform.forward = -HealthBarPlayer.gameObject.transform.forward;
+        HealthBarEnemy.gameObject.transform.forward = -HealthBarEnemy.gameObject.transform.forward;
         HealthBarPlayer.maxValue = healthPlayer;
         HealthBarEnemy.maxValue = healthEnemy;
 
-        // Test for now...
+        // Spawn enemies and begin battle mode (after 3 seconds)!
         spawnEnemies();
-
-        setBattleMode(true);
+        StartCoroutine(setBattleModeWrapper(true, 2.0f));
     }
 
     // Update is called once per frame
@@ -115,8 +119,10 @@ public class GameStateBattle : MonoBehaviour {
         // Change health
         HealthBarPlayer.value = healthPlayer;
         HealthBarEnemy.value = healthEnemy;
+        HealthBarPlayer.gameObject.transform.LookAt(GameManager.instance.ARCamera.transform);
+        HealthBarEnemy.gameObject.transform.LookAt(GameManager.instance.ARCamera.transform);
 
-		if ((healthPlayer <= 0.0f || healthEnemy <= 0.0f) && battle) {
+        if ((healthPlayer <= 0.0f || healthEnemy <= 0.0f) && battle) {
 			GUIBattle.transform.GetChild(2).gameObject.SetActive(true);
 			setBattleMode(false);
 
@@ -153,9 +159,20 @@ public class GameStateBattle : MonoBehaviour {
 		}
 	}
 
-	void setBattleMode (bool mode) {
-		// Set whether or not the battle is going on currently.
-		battle = mode;
+    IEnumerator setBattleModeWrapper (bool mode, float time) {
+        yield return new WaitForSeconds(time);
+        setBattleMode(mode);
+    }
+
+    void setBattleMode (bool mode) {
+        if (!battle) {
+            GUIBattle.transform.GetChild(0).gameObject.SetActive(false);
+            GUIBattle.transform.GetChild(1).gameObject.SetActive(true);
+            StartCoroutine(GUIDisableOverTime(2.0f));
+        }
+        
+        // Set whether or not the battle is going on currently.
+        battle = mode;
 
 		// Manage player houses.
 		foreach (GameObject house in VHousesPlayer) {
@@ -170,8 +187,13 @@ public class GameStateBattle : MonoBehaviour {
 		}
 	}
 
-	// Do things when this MonoBehavior is disabled.
-	void OnDisable () {
+    IEnumerator GUIDisableOverTime(float time) {
+        yield return new WaitForSeconds(time);
+        GUIBattle.transform.GetChild(1).gameObject.SetActive(false);
+    }
+
+    // Do things when this MonoBehavior is disabled.
+    void OnDisable () {
         // Remove the village houses.
 		foreach (GameObject building in BuildPlayer) {
 			Destroy(building);
@@ -187,6 +209,7 @@ public class GameStateBattle : MonoBehaviour {
         // Disable GUI Elements.
         if (GUIBattle) {
             GUIBattle.SetActive(false);
+            GUIBattleWorld.SetActive(false);
         }
     }
 }

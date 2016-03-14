@@ -81,7 +81,7 @@ public class GameStateBuild : MonoBehaviour {
         Vector3 position = hit.point;
 
         // Hacky way of making buildings spawn only on the X-Z plane and on the player side.
-		if (position.y == 0.0f && position.x <= 0) {
+		if (position.y == 0.0f && position.x <= -5.0f) {
             if (!isBuilding) {
                 buildMenu(position);
             }
@@ -135,16 +135,16 @@ public class GameStateBuild : MonoBehaviour {
 
     bool enoughResources (int buildType) {
         if (buildType == 0 && SaveManager.GameDataSave.numWood - 1 > 0 &&
-            SaveManager.GameDataSave.numBrick - 4 > 0 &&
-            SaveManager.GameDataSave.numOre - 1 > 0) {
+            SaveManager.GameDataSave.numBrick - 4 >= 0 &&
+            SaveManager.GameDataSave.numOre - 1 >= 0) {
             return true;
         } else if (buildType == 1 && SaveManager.GameDataSave.numWood - 1 > 0 &&
-			SaveManager.GameDataSave.numBrick - 2 > 0 &&
-			SaveManager.GameDataSave.numOre - 3 > 0) {
+			SaveManager.GameDataSave.numBrick - 2 >= 0 &&
+			SaveManager.GameDataSave.numOre - 3 >= 0) {
             return true;
 		} else if (buildType == 2 && SaveManager.GameDataSave.numWood - 3 > 0 &&
-			SaveManager.GameDataSave.numBrick - 1 > 0 &&
-			SaveManager.GameDataSave.numOre - 1 > 0) {
+			SaveManager.GameDataSave.numBrick - 1 >= 0 &&
+			SaveManager.GameDataSave.numOre - 1 >= 0) {
 			return true;
 		} else {
             return false;
@@ -189,7 +189,7 @@ public class GameStateBuild : MonoBehaviour {
 			"Ore: " + SaveManager.GameDataSave.numOre + "x";
 
 		// Set the text for the building to build.
-		GameObject GUIResourcesReq = GUIBuildMenu.transform.GetChild(1).GetChild(0).gameObject;
+		GameObject GUIResourcesReq = GUIBuildMenu.transform.GetChild(2).GetChild(1).gameObject;
 		if (buildType == 0) {
 			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 4x\n\nOre: 1x";
 		} else if (buildType == 1) {

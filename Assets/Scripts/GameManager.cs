@@ -7,14 +7,18 @@ public class GameManager : MonoBehaviour {
 	public static GameManager instance = null;
 
     // References to the game states.
-	public GameObject DirLight;
+    public GameStateGather gather;
+    public GameStateBuild build;
+    public GameStateBattle battle;
+
+    public GameObject DirLight;
 	public GameObject ImageTargetGather;
 	public GameObject ModelGather;
 	public GameObject ImageTarget;
 	public GameObject ModelBuildBattle;
-	public GameStateGather gather;
-	public GameStateBuild build;
-	public GameStateBattle battle;
+    public GameObject ARCamera;
+    public AudioClip AudioBuild;
+    public AudioClip AudioBattle;
 
 	// Main game GUI.
 	public GameObject GUIMainMenu;
