@@ -20,6 +20,9 @@ public class GameStateBattle : MonoBehaviour {
 	int healthPlayer;
 	int healthEnemy;
 
+	int enemyNumArmory;
+	int enemyNumFarm;
+
 	// GUI variables.
 	Slider HealthBarPlayer;
 	Slider HealthBarEnemy;
@@ -28,9 +31,9 @@ public class GameStateBattle : MonoBehaviour {
 	public void assignVillagerTarget (GameObject villager, bool isPlayer) {
 		Villager villagerScript = villager.GetComponent<Villager>();
 		if (isPlayer) {
-			villagerScript.ObjectTarget = VEnemy[Random.Range(0, VEnemy.Count)];
+			villagerScript.ObjectTarget = VEnemy[Random.Range(0, VEnemy.Count - 1)];
 		} else {
-			villagerScript.ObjectTarget = VPlayer[Random.Range(0, VPlayer.Count)];
+			villagerScript.ObjectTarget = VPlayer[Random.Range(0, VPlayer.Count - 1)];
 		}
 	}
 
@@ -58,6 +61,7 @@ public class GameStateBattle : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
         VHousesPlayer = new List<GameObject>();
+		VHousesEnemy = new List<GameObject>();
 		BuildPlayer = new List<GameObject>();
 		BuildEnemy = new List<GameObject>();
         battle = false;
@@ -68,7 +72,7 @@ public class GameStateBattle : MonoBehaviour {
 
     void OnEnable () {
         // Spawn all player buildings.
-        for (int i = 0; i < SaveManager.GameDataSave.buildingNum; i++) {
+		for (int i = 0; i < SaveManager.GameDataSave.buildingPos.Count; i++) {
 			string resourceName = SaveManager.GameDataSave.buildingName[i];
             GameObject building = (GameObject) Instantiate(
 				Resources.Load(resourceName),
@@ -90,8 +94,14 @@ public class GameStateBattle : MonoBehaviour {
         // Set game variables.
         VPlayer = new List<GameObject>();
         VEnemy = new List<GameObject>();
-		healthPlayer = SaveManager.GameDataSave.healthVillage + SaveManager.GameDataSave.numFarm * GameDataLevels.healthFarm;
-		healthEnemy = GameDataLevels.numHouses(SaveManager.GameDataSave.GameLevel);
+		healthPlayer = SaveManager.GameDataSave.healthVillage + VHousesPlayer.Count / 5 + SaveManager.GameDataSave.numFarm * GameDataLevels.healthFarm;
+
+		// Spawn enemies.
+		BuildEnemy = GameDataLevels.initEnemyHouses(SaveManager.GameDataSave.GameLevel, ref VHousesEnemy, ref enemyNumArmory, ref enemyNumFarm);
+		foreach (GameObject building in VHousesEnemy) {
+			building.GetComponent<VillageHouse>().gameStateBattle = this;
+		}
+		healthEnemy = GameDataLevels.healthEnemyVillage + VHousesEnemy.Count / 5 + enemyNumFarm * GameDataLevels.healthFarm;
 
         // Enable GUI Elements.
         GUIBattle.SetActive(true);
@@ -110,7 +120,6 @@ public class GameStateBattle : MonoBehaviour {
         HealthBarEnemy.maxValue = healthEnemy;
 
         // Spawn enemies and begin battle mode (after 3 seconds)!
-        spawnEnemies();
         StartCoroutine(setBattleModeWrapper(true, 2.0f));
     }
 
@@ -132,6 +141,7 @@ public class GameStateBattle : MonoBehaviour {
                 SaveManager.GameDataSave.GameLevel++;
 			} else {
 				GUIBattle.transform.GetChild(4).gameObject.SetActive(true);
+//				SaveManager.GameDataSave.removeBuilding(Random.Range (0, SaveManager.GameDataSave.buildingPos.Count - 1));
 			}
 			GUIBattle.transform.GetChild(0).gameObject.SetActive(false);
 			GUIBattle.transform.GetChild(1).gameObject.SetActive(false);
@@ -149,16 +159,6 @@ public class GameStateBattle : MonoBehaviour {
     }
 
     // Private functions.
-    void spawnEnemies () {
-		VHousesEnemy = GameDataLevels.initEnemyHouses(SaveManager.GameDataSave.GameLevel);
-		BuildEnemy = VHousesEnemy;
-
-		// Manage enemy houses.
-		foreach (GameObject house in VHousesEnemy) {
-			house.GetComponent<VillageHouse>().gameStateBattle = this;
-		}
-	}
-
     IEnumerator setBattleModeWrapper (bool mode, float time) {
         yield return new WaitForSeconds(time);
         setBattleMode(mode);

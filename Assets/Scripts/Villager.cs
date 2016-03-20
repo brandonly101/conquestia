@@ -10,6 +10,8 @@ public class Villager : MonoBehaviour {
 	public int health;
 
 	public Animator anim;
+
+	NavMeshAgent agent;
 	float timer;
 	float speed;
 
@@ -39,10 +41,11 @@ public class Villager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		anim = GetComponentInChildren<Animator>();
+		agent = GetComponentInChildren<NavMeshAgent>();
 		timer = 0.0f;
 		alive = true;
-		speed = 0.07f;
 		anim.SetFloat("Speed", 1.0f);
+		agent.speed = 5.0f;
 
 		// Set villager health.
 		if (isPlayer) {
@@ -59,7 +62,7 @@ public class Villager : MonoBehaviour {
             if (ObjectTarget) {
                 if (Vector3.Distance(transform.position, ObjectTarget.transform.position) > 1.0f) {
 					anim.SetBool("Attack", false);
-                    MoveTo(ObjectTarget.transform.position, speed);
+					agent.destination = ObjectTarget.transform.position;
 					transform.forward = Vector3.Normalize(ObjectTarget.transform.position - transform.position);
                 } else {
                     anim.SetBool("Attack", true);

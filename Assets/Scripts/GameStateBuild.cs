@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Vuforia;
 
 public class GameStateBuild : MonoBehaviour {
 
@@ -21,22 +22,22 @@ public class GameStateBuild : MonoBehaviour {
 		GameObject building;
         if (buildType == 0 && enoughResources(buildType)) {
             building = cleanSpawnObject("VillagerHousePlayer", PrebuildPos);
-            SaveManager.GameDataSave.numWood -= 1;
-            SaveManager.GameDataSave.numBrick -= 4;
-            SaveManager.GameDataSave.numOre -= 1;
-			saveBuildingProperties(building.transform.position, "VillagerHousePlayer");
+			SaveManager.GameDataSave.numWood -= GameDataLevels.costHouseWood;
+			SaveManager.GameDataSave.numBrick -= GameDataLevels.costHouseBrick;
+			SaveManager.GameDataSave.numOre -= GameDataLevels.costHouseOre;
+			SaveManager.GameDataSave.addBuilding(building.transform.position, "VillagerHousePlayer");
         } else if (buildType == 1 && enoughResources(buildType)) {
 			building = cleanSpawnObject("Armory", PrebuildPos);
-			SaveManager.GameDataSave.numWood -= 1;
-			SaveManager.GameDataSave.numBrick -= 2;
-			SaveManager.GameDataSave.numOre -= 3;
-			saveBuildingProperties(building.transform.position, "Armory");
+			SaveManager.GameDataSave.numWood -= GameDataLevels.costArmoryWood;
+			SaveManager.GameDataSave.numBrick -= GameDataLevels.costArmoryBrick;
+			SaveManager.GameDataSave.numOre -= GameDataLevels.costArmoryOre;
+			SaveManager.GameDataSave.addBuilding(building.transform.position, "Armory");
 		} else if (buildType == 2 && enoughResources(buildType)) {
 			building = cleanSpawnObject("Farm", PrebuildPos);
-			SaveManager.GameDataSave.numWood -= 3;
-			SaveManager.GameDataSave.numBrick -= 1;
-			SaveManager.GameDataSave.numOre -= 1;
-			saveBuildingProperties(building.transform.position, "Farm");
+			SaveManager.GameDataSave.numWood -= GameDataLevels.costFarmWood;
+			SaveManager.GameDataSave.numBrick -= GameDataLevels.costFarmBrick;
+			SaveManager.GameDataSave.numOre -= GameDataLevels.costFarmOre;
+			SaveManager.GameDataSave.addBuilding(building.transform.position, "Farm");
 		} else {
             GUIBuildMenu.transform.GetChild(7).gameObject.SetActive(true);
             StartCoroutine(GUIDisableOverTime(3.0f));
@@ -86,7 +87,7 @@ public class GameStateBuild : MonoBehaviour {
                 buildMenu(position);
             }
         }
-    }
+	}
 
     // Use this for initialization
     void Awake () {
@@ -100,7 +101,7 @@ public class GameStateBuild : MonoBehaviour {
 
     void OnEnable () {
         isBuilding = false;
-        for (int i = 0; i < SaveManager.GameDataSave.buildingNum; i++) {
+		for (int i = 0; i < SaveManager.GameDataSave.buildingPos.Count; i++) {
             string resourceName = SaveManager.GameDataSave.buildingName[i];
             GameObject building = (GameObject) Instantiate(
                 Resources.Load(resourceName),
@@ -134,17 +135,17 @@ public class GameStateBuild : MonoBehaviour {
 	}
 
     bool enoughResources (int buildType) {
-        if (buildType == 0 && SaveManager.GameDataSave.numWood - 1 > 0 &&
-            SaveManager.GameDataSave.numBrick - 4 >= 0 &&
-            SaveManager.GameDataSave.numOre - 1 >= 0) {
+		if (buildType == 0 && SaveManager.GameDataSave.numWood - GameDataLevels.costHouseWood > 0 &&
+			SaveManager.GameDataSave.numBrick - GameDataLevels.costHouseBrick >= 0 &&
+			SaveManager.GameDataSave.numOre - GameDataLevels.costHouseOre >= 0) {
             return true;
-        } else if (buildType == 1 && SaveManager.GameDataSave.numWood - 1 > 0 &&
-			SaveManager.GameDataSave.numBrick - 2 >= 0 &&
-			SaveManager.GameDataSave.numOre - 3 >= 0) {
+		} else if (buildType == 1 && SaveManager.GameDataSave.numWood - GameDataLevels.costArmoryWood > 0 &&
+			SaveManager.GameDataSave.numBrick - GameDataLevels.costArmoryBrick >= 0 &&
+			SaveManager.GameDataSave.numOre - GameDataLevels.costArmoryOre >= 0) {
             return true;
-		} else if (buildType == 2 && SaveManager.GameDataSave.numWood - 3 > 0 &&
-			SaveManager.GameDataSave.numBrick - 1 >= 0 &&
-			SaveManager.GameDataSave.numOre - 1 >= 0) {
+		} else if (buildType == 2 && SaveManager.GameDataSave.numWood - GameDataLevels.costFarmWood > 0 &&
+			SaveManager.GameDataSave.numBrick - GameDataLevels.costFarmBrick >= 0 &&
+			SaveManager.GameDataSave.numOre - GameDataLevels.costFarmOre >= 0) {
 			return true;
 		} else {
             return false;
@@ -171,7 +172,7 @@ public class GameStateBuild : MonoBehaviour {
 
         // Set the text for the current level, village strength, and villager health.
 		GUIBuild.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = "Level " + SaveManager.GameDataSave.GameLevel;
-		GUIBuild.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Text>().text = "Village Strenth - " +
+		GUIBuild.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Text>().text = "Village Strength - " +
 			(SaveManager.GameDataSave.healthVillage + SaveManager.GameDataSave.numFarm * GameDataLevels.healthFarm);
 		GUIBuild.transform.GetChild(0).GetChild(2).gameObject.GetComponent<Text>().text = "Villager Health - " +
 			(SaveManager.GameDataSave.healthVillager + SaveManager.GameDataSave.numArmory * GameDataLevels.healthArmory);
@@ -189,27 +190,31 @@ public class GameStateBuild : MonoBehaviour {
 			"Ore: " + SaveManager.GameDataSave.numOre + "x";
 
 		// Set the text for the building to build.
+		Text textBuilding = GUIBuildMenu.transform.GetChild(1).GetChild(0).gameObject.GetComponent<Text>();
 		GameObject GUIResourcesReq = GUIBuildMenu.transform.GetChild(2).GetChild(1).gameObject;
 		if (buildType == 0) {
-			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 4x\n\nOre: 1x";
+			textBuilding.text = "House";
+			GUIResourcesReq.GetComponent<Text>().text =
+				"Wood: " + GameDataLevels.costHouseWood + "x\n\n" +
+				"Brick: " + GameDataLevels.costHouseBrick + "x\n\n" +
+				"Ore: " + GameDataLevels.costHouseOre + "x";
 		} else if (buildType == 1) {
-			GUIResourcesReq.GetComponent<Text>().text = "Wood: 1x\n\nBrick: 2x\n\nOre: 3x";
+			textBuilding.text = "Armory";
+			GUIResourcesReq.GetComponent<Text>().text =
+				"Wood: " + GameDataLevels.costArmoryWood + "x\n\n" +
+				"Brick: " + GameDataLevels.costArmoryBrick + "x\n\n" +
+				"Ore: " + GameDataLevels.costArmoryOre + "x";
 		} else {
-			GUIResourcesReq.GetComponent<Text>().text = "Wood: 3x\n\nBrick: 1x\n\nOre: 1x";
+			textBuilding.text = "Farm";
+			GUIResourcesReq.GetComponent<Text>().text =
+				"Wood: " + GameDataLevels.costFarmWood + "x\n\n" +
+				"Brick: " + GameDataLevels.costFarmBrick + "x\n\n" +
+				"Ore: " + GameDataLevels.costFarmOre + "x";
 		}
     }
 
     void saveBuildingProperties (Vector3 pos, string name) {
-        SaveManager.GameDataSave.buildingPos.Add(new float[3] { pos.x, pos.y, pos.z });
-        SaveManager.GameDataSave.buildingName.Add(name);
-        SaveManager.GameDataSave.buildingNum++;
-		if (name == "VillagerHousePlayer") {
-			SaveManager.GameDataSave.numHouse++;
-		} else if (name == "Armory") {
-			SaveManager.GameDataSave.numArmory++;
-		} else {
-			SaveManager.GameDataSave.numFarm++;
-		}
+		SaveManager.GameDataSave.addBuilding(pos, name);
     }
 
     IEnumerator GUIDisableOverTime (float time) {

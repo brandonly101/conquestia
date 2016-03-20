@@ -22,12 +22,14 @@ public class GameManager : MonoBehaviour {
 
 	// Main game GUI.
 	public GameObject GUIMainMenu;
+	public GameObject GUIHelpMM;
 
 	// Public functions to be accessed by other classes.
     public void StartGameNew () {
 		GUIMainMenu.transform.GetChild(1).gameObject.SetActive(false);
 		GUIMainMenu.transform.GetChild(2).gameObject.SetActive(false);
-		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(true);
+		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(false);
+		GUIMainMenu.transform.GetChild(4).gameObject.SetActive(true);
     }
 
 	public void StartGameNewConfirm () {
@@ -39,7 +41,8 @@ public class GameManager : MonoBehaviour {
 	public void StartGameNewCancel () {
 		GUIMainMenu.transform.GetChild(1).gameObject.SetActive(true);
 		GUIMainMenu.transform.GetChild(2).gameObject.SetActive(true);
-		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(false); 
+		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(true); 
+		GUIMainMenu.transform.GetChild(4).gameObject.SetActive(false); 
 	}
 
     public void StartGameContinue () {
@@ -70,6 +73,8 @@ public class GameManager : MonoBehaviour {
 		ImageTarget.SetActive(true);
 		ModelBuildBattle.SetActive(true);
 		DirLight.transform.eulerAngles = new Vector3(45.0f, 0.0f, 0.0f);
+		ARCamera.GetComponent<AudioSource>().clip = AudioBuild;
+		ARCamera.GetComponent<AudioSource>().Play();
 	}
 
 	public void StartBattleMode () {
@@ -81,6 +86,18 @@ public class GameManager : MonoBehaviour {
 		ModelGather.SetActive(false);
 		ImageTarget.SetActive(true);
 		ModelBuildBattle.SetActive(true);
+		ARCamera.GetComponent<AudioSource>().clip = AudioBattle;
+		ARCamera.GetComponent<AudioSource>().Play();
+	}
+
+	public void GUIHelpMainMenu () {
+		GUIHelpMM.SetActive(true);
+		GUIMainMenu.SetActive(false);
+	}
+
+	public void GUIHelpMMGoBack () {
+		GUIMainMenu.SetActive(true);
+		GUIHelpMM.SetActive(false);
 	}
 
 	// Use this for initialization
@@ -116,6 +133,7 @@ public class GameManager : MonoBehaviour {
 		GUIMainMenu.transform.GetChild(0).gameObject.SetActive(true);
 		GUIMainMenu.transform.GetChild(1).gameObject.SetActive(true);
 		GUIMainMenu.transform.GetChild(2).gameObject.SetActive(true);
-		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(false);
+		GUIMainMenu.transform.GetChild(3).gameObject.SetActive(true);
+		GUIMainMenu.transform.GetChild(4).gameObject.SetActive(false);
     }
 }

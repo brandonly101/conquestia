@@ -59,8 +59,7 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 			// enable the new result with the same ImageTargetBehaviour:
 			ObjectTracker tracker = TrackerManager.Instance.GetTracker<ObjectTracker>();
 			ImageTargetBehaviour imageTargetBehaviour =
-				(ImageTargetBehaviour)tracker.TargetFinder.EnableTracking(
-					targetSearchResult, ImageTargetTemplate.gameObject);
+				(ImageTargetBehaviour) tracker.TargetFinder.EnableTracking(targetSearchResult, ImageTargetTemplate.gameObject);
 		}
 	}
 
