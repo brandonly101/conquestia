@@ -119,6 +119,9 @@ public class GameStateBattle : MonoBehaviour {
         HealthBarPlayer.maxValue = healthPlayer;
         HealthBarEnemy.maxValue = healthEnemy;
 
+		GameManager.instance.ARCamera.GetComponent<AudioSource>().clip = GameManager.instance.AudioBattle;
+		GameManager.instance.ARCamera.GetComponent<AudioSource>().Play();
+
         // Spawn enemies and begin battle mode (after 3 seconds)!
         StartCoroutine(setBattleModeWrapper(true, 2.0f));
     }
@@ -211,5 +214,9 @@ public class GameStateBattle : MonoBehaviour {
             GUIBattle.SetActive(false);
             GUIBattleWorld.SetActive(false);
         }
+
+		// Enable correct audio to play.
+		GameManager.instance.ARCamera.GetComponent<AudioSource>().clip = GameManager.instance.AudioBuild;
+		GameManager.instance.ARCamera.GetComponent<AudioSource>().Play();
     }
 }

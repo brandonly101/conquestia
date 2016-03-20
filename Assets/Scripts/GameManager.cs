@@ -73,8 +73,6 @@ public class GameManager : MonoBehaviour {
 		ImageTarget.SetActive(true);
 		ModelBuildBattle.SetActive(true);
 		DirLight.transform.eulerAngles = new Vector3(45.0f, 0.0f, 0.0f);
-		ARCamera.GetComponent<AudioSource>().clip = AudioBuild;
-		ARCamera.GetComponent<AudioSource>().Play();
 	}
 
 	public void StartBattleMode () {
@@ -86,8 +84,6 @@ public class GameManager : MonoBehaviour {
 		ModelGather.SetActive(false);
 		ImageTarget.SetActive(true);
 		ModelBuildBattle.SetActive(true);
-		ARCamera.GetComponent<AudioSource>().clip = AudioBattle;
-		ARCamera.GetComponent<AudioSource>().Play();
 	}
 
 	public void GUIHelpMainMenu () {
