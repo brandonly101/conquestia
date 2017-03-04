@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -9,6 +9,7 @@ public class VillageHouse : MonoBehaviour {
 	public bool battleMode;
 	public bool isPlayer;
 
+    public int villagerIndex { get; set; }
 	GameObject villager;
 	
 	// Update is called once per frame
@@ -16,7 +17,7 @@ public class VillageHouse : MonoBehaviour {
 		if (battleMode && villager == null) {
 			// Spawn a villager and add it to the gameStateBattle.
 			spawnVillager();
-			gameStateBattle.addVillager(villager, isPlayer);
+			gameStateBattle.addVillager(villagerIndex, villager, isPlayer);
 		} else if (battleMode && villager) {
 			Villager villagerScript = villager.GetComponent<Villager>();
 
@@ -27,7 +28,7 @@ public class VillageHouse : MonoBehaviour {
 
 			// Check to see if villager is dead.
 			if (villagerScript.health == 0 && villagerScript.alive)  {
-				gameStateBattle.removeVillager(villager, isPlayer);
+				gameStateBattle.removeVillager(villagerIndex, villager, isPlayer);
 			}
 		}
 	}

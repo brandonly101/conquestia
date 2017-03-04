@@ -59,7 +59,7 @@ public class Villager : MonoBehaviour {
 	void Update () {
 		if (alive) {
 			timer += Time.deltaTime;
-            if (ObjectTarget) {
+            if (ObjectTarget && ObjectTarget.GetComponent<Villager>().alive) {
                 if (Vector3.Distance(transform.position, ObjectTarget.transform.position) > 1.0f) {
 					anim.SetBool("Attack", false);
 					agent.destination = ObjectTarget.transform.position;

@@ -37,22 +37,22 @@ public class GameStateBattle : MonoBehaviour {
 		}
 	}
 
-	public void addVillager (GameObject villager, bool isPlayer) {
+	public void addVillager (int index, GameObject villager, bool isPlayer) {
 		if (isPlayer) {
-			VPlayer.Add(villager);
+			VPlayer[index] = villager;
 		} else {
-			VEnemy.Add(villager);
+			VEnemy[index] = villager;
 		}
 	}
 
-	public void removeVillager (GameObject villager, bool isPlayer) {
+	public void removeVillager (int index, GameObject villager, bool isPlayer) {
 		Villager villagerScript = villager.GetComponent<Villager>();
 		if (isPlayer) {
-			VPlayer.Remove(villager);
+			VPlayer[index] = null;
 			healthPlayer--;
 		} else {
-			VEnemy.Remove(villager);
-			healthEnemy--;
+            VEnemy[index] = null;
+            healthEnemy--;
 		}
 		villagerScript.alive = false;
 		villagerScript.Die();
@@ -88,20 +88,27 @@ public class GameStateBattle : MonoBehaviour {
 				VHousesPlayer.Add(building);
 				VillageHouse buildingScript = building.GetComponent<VillageHouse>();
 				buildingScript.gameStateBattle = this;
+                buildingScript.villagerIndex = VHousesPlayer.Count - 1;
 			}
         }
-
-        // Set game variables.
         VPlayer = new List<GameObject>();
-        VEnemy = new List<GameObject>();
+        foreach (GameObject building in VHousesPlayer) {
+            VPlayer.Add(null);
+        }
 		healthPlayer = SaveManager.GameDataSave.healthVillage + VHousesPlayer.Count / 5 + SaveManager.GameDataSave.numFarm * GameDataLevels.healthFarm;
 
 		// Spawn enemies.
 		BuildEnemy = GameDataLevels.initEnemyHouses(SaveManager.GameDataSave.GameLevel, ref VHousesEnemy, ref enemyNumArmory, ref enemyNumFarm);
-		foreach (GameObject building in VHousesEnemy) {
-			building.GetComponent<VillageHouse>().gameStateBattle = this;
-		}
-		healthEnemy = GameDataLevels.healthEnemyVillage + VHousesEnemy.Count / 5 + enemyNumFarm * GameDataLevels.healthFarm;
+		for (int i = 0; i < VHousesEnemy.Count; i++) {
+            VillageHouse buildingScript = VHousesEnemy[i].GetComponent<VillageHouse>();
+            buildingScript.gameStateBattle = this;
+            buildingScript.villagerIndex = i;
+        }
+        VEnemy = new List<GameObject>();
+        foreach (GameObject building in VHousesEnemy) {
+            VEnemy.Add(null);
+        }
+        healthEnemy = GameDataLevels.healthEnemyVillage + VHousesEnemy.Count / 5 + enemyNumFarm * GameDataLevels.healthFarm;
 
         // Enable GUI Elements.
         GUIBattle.SetActive(true);
@@ -119,8 +126,13 @@ public class GameStateBattle : MonoBehaviour {
         HealthBarPlayer.maxValue = healthPlayer;
         HealthBarEnemy.maxValue = healthEnemy;
 
-		GameManager.instance.ARCamera.GetComponent<AudioSource>().clip = GameManager.instance.AudioBattle;
-		GameManager.instance.ARCamera.GetComponent<AudioSource>().Play();
+        if (GameManager.instance.ARCamera.activeInHierarchy) {
+            GameManager.instance.ARCamera.GetComponent<AudioSource>().clip = GameManager.instance.AudioBattle;
+            GameManager.instance.ARCamera.GetComponent<AudioSource>().Play();
+        } else {
+            GameManager.instance.DebugCamera.GetComponent<AudioSource>().clip = GameManager.instance.AudioBattle;
+            GameManager.instance.DebugCamera.GetComponent<AudioSource>().Play();
+        }
 
         // Spawn enemies and begin battle mode (after 3 seconds)!
         StartCoroutine(setBattleModeWrapper(true, 2.0f));
@@ -149,13 +161,17 @@ public class GameStateBattle : MonoBehaviour {
 			GUIBattle.transform.GetChild(0).gameObject.SetActive(false);
 			GUIBattle.transform.GetChild(1).gameObject.SetActive(false);
 
-			// Destroy all villagers still present.
-			foreach (GameObject villager in VPlayer) {
-				villager.GetComponent<Villager>().Die();
-			}
-			foreach (GameObject villager in VEnemy) {
-				villager.GetComponent<Villager>().Die();
-			}
+            // Destroy all villagers still present.
+            for (int i = 0; i < VPlayer.Count; i++) {
+                if (VPlayer[i]) {
+                    VPlayer[i].GetComponent<Villager>().Die();
+                }
+            }
+            for (int i = 0; i < VEnemy.Count; i++) {
+                if (VEnemy[i]) {
+                    VEnemy[i].GetComponent<Villager>().Die();
+                }
+            }
 
 			SaveManager.GameSave();
 		}
@@ -216,7 +232,12 @@ public class GameStateBattle : MonoBehaviour {
         }
 
 		// Enable correct audio to play.
-		GameManager.instance.ARCamera.GetComponent<AudioSource>().clip = GameManager.instance.AudioBuild;
-		GameManager.instance.ARCamera.GetComponent<AudioSource>().Play();
+        if (GameManager.instance.ARCamera.activeInHierarchy) {
+            GameManager.instance.ARCamera.GetComponent<AudioSource>().clip = GameManager.instance.AudioBuild;
+            GameManager.instance.ARCamera.GetComponent<AudioSource>().Play();
+        } else {
+            GameManager.instance.DebugCamera.GetComponent<AudioSource>().clip = GameManager.instance.AudioBuild;
+            GameManager.instance.DebugCamera.GetComponent<AudioSource>().Play();
+        }
     }
 }

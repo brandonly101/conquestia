@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour {
 	public GameObject ImageTarget;
 	public GameObject ModelBuildBattle;
     public GameObject ARCamera;
+    public GameObject DebugCamera;
     public AudioClip AudioBuild;
     public AudioClip AudioBattle;
 
