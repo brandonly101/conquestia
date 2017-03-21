@@ -1,7 +1,7 @@
 /*==============================================================================
 Copyright (c) 2010-2014 Qualcomm Connected Experiences, Inc.
 All Rights Reserved.
-Confidential and Proprietary - Qualcomm Connected Experiences, Inc.
+Confidential and Proprietary - Protected under copyright and other laws.
 ==============================================================================*/
 
 using UnityEngine;
@@ -27,11 +27,7 @@ namespace Vuforia
         void Awake()
         {
             // Check for an initialization error on start.
-            VuforiaAbstractBehaviour vuforiaBehaviour = (VuforiaAbstractBehaviour)FindObjectOfType(typeof(VuforiaAbstractBehaviour));
-            if (vuforiaBehaviour)
-            {
-                vuforiaBehaviour.RegisterVuforiaInitErrorCallback(OnVuforiaInitializationError);
-            }
+            VuforiaRuntime.Instance.RegisterVuforiaInitErrorCallback(OnVuforiaInitializationError);
         }
 
         void OnGUI()
@@ -47,11 +43,7 @@ namespace Vuforia
         /// </summary>
         void OnDestroy()
         {
-            VuforiaAbstractBehaviour vuforiaBehaviour = (VuforiaAbstractBehaviour)FindObjectOfType(typeof(VuforiaAbstractBehaviour));
-            if (vuforiaBehaviour)
-            {
-                vuforiaBehaviour.UnregisterVuforiaInitErrorCallback(OnVuforiaInitializationError);
-            }
+            VuforiaRuntime.Instance.UnregisterVuforiaInitErrorCallback(OnVuforiaInitializationError);
         }
 
         #endregion // UNTIY_MONOBEHAVIOUR_METHODS

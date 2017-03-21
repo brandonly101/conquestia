@@ -2,6 +2,8 @@
 using UnityEngine.UI;
 using System.Collections;
 using Vuforia;
+//using BarcodeScanner;
+//using BarcodeScanner.Scanner;
 
 public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 
@@ -21,9 +23,10 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 	bool mIsScanning = false;
 	string mTargetMetadata = "";
 	bool mShowGUIButton = false;
-	int item = 1;
+	int item = 0;
 	int amt = 0;
 	bool collected = false;
+//	IScanner BarcodeScanner;
 
 	// Public functions.
 	public void OnInitialized() {
@@ -53,6 +56,10 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 
 		// stop the target finder (i.e. stop scanning the cloud)
 		mCloudRecoBehaviour.CloudRecoEnabled = false;
+
+		#if UNITY_ANDROID || UNITY_IOS
+		Handheld.Vibrate();
+		#endif
 
 		// Build augmentation based on target
 		if (ImageTargetTemplate) {
@@ -91,6 +98,7 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 		collected = false;
 		GUIAgain.SetActive(false);
 		mCloudRecoBehaviour.CloudRecoEnabled = true;
+//		BarcodeScannerStart();
 		GUISearching.enabled = true;
 		GUISuccess.enabled = false;
 		GUIAmount.enabled = false;
@@ -107,12 +115,20 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 		}
 		OnStateChanged(false);
 		GUIGather.SetActive(false);
+//		BarcodeScanner = new Scanner();
 	}
 
 	void OnEnable () {
 		// clear all known trackables
 		OnStateChanged(true);
 		mCloudRecoBehaviour.CloudRecoEnabled = true;
+
+		// activate barcode scanner
+//		BarcodeScanner.Camera.Play();
+//		BarcodeScanner.OnReady += (sender, arg) => {
+//			BarcodeScannerStart();
+//		};
+
 		item = Random.Range(1, 4);
 		amt = Random.Range(1, 4);
 		GUIAmount.text = amt.ToString() + "x";
@@ -133,6 +149,9 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 			"Wood: " + SaveManager.GameDataSave.numWood + "x\n\n" +
 			"Brick: " + SaveManager.GameDataSave.numBrick + "x\n\n" +
 			"Ore: " + SaveManager.GameDataSave.numOre + "x";
+	}
+
+	void Start () {
 	}
 
 	void Update () {
@@ -162,6 +181,7 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 			ModelOre.SetActive(false);
 			ModelWood.SetActive(false);
 		}
+//		BarcodeScanner.Update();
 	}
 
 	void OnDisable () {
@@ -169,6 +189,25 @@ public class GameStateGather : MonoBehaviour, ICloudRecoEventHandler {
 
 		// Set GUI elements.
 		GUIGather.SetActive(false);
+
+//		BarcodeScanner.Camera.Stop();
 	}
+
+//	void BarcodeScannerStart () {
+//		print("BARCODE SCANNER START");
+//		BarcodeScanner.Scan((barCodeType, barCodeValue) => {
+//			BarcodeScanner.Stop();
+//			print("BARCODE SCANNER STOP");
+//
+//			mShowGUIButton = true;
+//
+//			// stop the target finder (i.e. stop scanning the cloud)
+//			mCloudRecoBehaviour.CloudRecoEnabled = false;
+//
+//			#if UNITY_ANDROID || UNITY_IOS
+//			Handheld.Vibrate();
+//			#endif
+//		});
+//	}
 }
 

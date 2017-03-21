@@ -11,7 +11,7 @@ public class Villager : MonoBehaviour {
 
 	public Animator anim;
 
-	NavMeshAgent agent;
+	UnityEngine.AI.NavMeshAgent agent;
 	float timer;
 	float speed;
 
@@ -41,7 +41,7 @@ public class Villager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		anim = GetComponentInChildren<Animator>();
-		agent = GetComponentInChildren<NavMeshAgent>();
+		agent = GetComponentInChildren<UnityEngine.AI.NavMeshAgent>();
 		timer = 0.0f;
 		alive = true;
 		anim.SetFloat("Speed", 1.0f);

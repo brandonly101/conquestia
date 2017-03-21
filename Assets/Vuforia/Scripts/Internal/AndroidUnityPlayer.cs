@@ -1,7 +1,8 @@
 /*==============================================================================
+Copyright (c) 2016 PTC Inc.
 Copyright (c) 2013-2014 Qualcomm Connected Experiences, Inc.
 All Rights Reserved.
-Confidential and Proprietary - Qualcomm Connected Experiences, Inc.
+Confidential and Proprietary - Protected under copyright and other laws.
 ==============================================================================*/
 
 using System;
@@ -52,15 +53,22 @@ namespace Vuforia
         }
 
         /// <summary>
-        /// Initializes Vuforia; called from Start
+        /// Initializes Vuforia
         /// </summary>
-        public VuforiaUnity.InitError Start(string licenseKey)
+        public VuforiaUnity.InitError InitializeVuforia(string licenseKey)
         {
-            int errorCode = InitVuforia(licenseKey);
+            VuforiaRenderer.RendererAPI rendererAPI = VuforiaRenderer.Instance.GetRendererAPI();
+            int errorCode = InitVuforia((int)rendererAPI, licenseKey);
             if (errorCode >= 0)
                 InitializeSurface();
             return (VuforiaUnity.InitError)errorCode;
         }
+
+        /// <summary>
+        /// Called on start each time a new scene is loaded
+        /// </summary>
+        public void StartScene()
+        { }
 
         /// <summary>
         /// Called from Update, checks for various life cycle events that need to be forwarded
@@ -136,7 +144,7 @@ namespace Vuforia
                 mCurrentActivity = javaUnityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
                 if (mCurrentActivity != null)
                 {
-                    mVuforiaInitializer = new AndroidJavaClass("com.qualcomm.QCARUnityPlayer.QCARInitializer");
+                    mVuforiaInitializer = new AndroidJavaClass("com.vuforia.VuforiaUnityPlayer.VuforiaInitializer");
                     mVuforiaInitializer.CallStatic("loadNativeLibraries");
                 }
             }
@@ -152,13 +160,13 @@ namespace Vuforia
 #endif
         }
 
-        private int InitVuforia(string licenseKey)
+        private int InitVuforia(int rendererAPI, string licenseKey)
         {
             int errorcode = -1;
-    #if UNITY_ANDROID
+#if UNITY_ANDROID
             LoadNativeLibrariesFromJava();
             if (mVuforiaInitializer != null)
-                errorcode = mVuforiaInitializer.CallStatic<int>("initQCAR", mCurrentActivity, licenseKey);
+                errorcode = mVuforiaInitializer.CallStatic<int>("initVuforia", mCurrentActivity, rendererAPI, licenseKey);
 #endif
             return errorcode;
         }
@@ -172,7 +180,7 @@ namespace Vuforia
             mCurrentActivity = javaUnityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             if (mCurrentActivity != null)
             {
-                mJavaOrientationUtility = new AndroidJavaClass("com.qualcomm.QCARUnityPlayer.OrientationUtility");
+                mJavaOrientationUtility = new AndroidJavaClass("com.vuforia.VuforiaUnityPlayer.OrientationUtility");
             }
     #endif
 

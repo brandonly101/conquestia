@@ -1,7 +1,9 @@
 /*==============================================================================
+Copyright (c) 2016 PTC Inc. All Rights Reserved.
+
 Copyright (c) 2013-2014 Qualcomm Connected Experiences, Inc.
 All Rights Reserved.
-Qualcomm Confidential and Proprietary
+Confidential and Proprietary - Protected under copyright and other laws.
 ==============================================================================*/
 
 using UnityEngine;
@@ -35,11 +37,6 @@ namespace Vuforia
             return gameObject.AddComponent<ImageTargetBehaviour>();
         }
 
-        public MarkerAbstractBehaviour AddMarkerBehaviour(GameObject gameObject)
-        {
-            return gameObject.AddComponent<MarkerBehaviour>();
-        }
-
         public MultiTargetAbstractBehaviour AddMultiTargetBehaviour(GameObject gameObject)
         {
             return gameObject.AddComponent<MultiTargetBehaviour>();
@@ -63,6 +60,16 @@ namespace Vuforia
         public ObjectTargetAbstractBehaviour AddObjectTargetBehaviour(GameObject gameObject)
         {
             return gameObject.AddComponent<ObjectTargetBehaviour>();
+        }
+
+        public VuMarkAbstractBehaviour AddVuMarkBehaviour(GameObject gameObject)
+        {
+            return gameObject.AddComponent<VuMarkBehaviour>();
+        }
+
+        public VuforiaAbstractConfiguration CreateVuforiaConfiguration()
+        {
+            return ScriptableObject.CreateInstance<VuforiaConfiguration>();
         }
 
         #endregion // PUBLIC_METHODS

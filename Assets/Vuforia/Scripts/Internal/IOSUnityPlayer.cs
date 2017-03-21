@@ -1,7 +1,7 @@
 /*==============================================================================
 Copyright (c) 2013-2014 Qualcomm Connected Experiences, Inc.
 All Rights Reserved.
-Confidential and Proprietary - Qualcomm Connected Experiences, Inc.
+Confidential and Proprietary - Protected under copyright and other laws.
 ==============================================================================*/
 
 using System;
@@ -24,6 +24,9 @@ namespace Vuforia
         /// </summary>
         public void LoadNativeLibraries()
         {
+#if ((UNITY_IPHONE || UNITY_IOS) && !UNITY_EDITOR)
+            VuforiaWrapper.SetImplementation(new VuforiaNativeIosWrapper());
+#endif
         }
 
         /// <summary>
@@ -31,19 +34,32 @@ namespace Vuforia
         /// </summary>
         public void InitializePlatform()
         {
+#if ((UNITY_IPHONE || UNITY_IOS) && !UNITY_EDITOR)
             setPlatFormNative();
+#endif
         }
 
         /// <summary>
-        /// Initializes Vuforia; called from Start
+        /// Initializes Vuforia
         /// </summary>
-        public VuforiaUnity.InitError Start(string licenseKey)
+        public VuforiaUnity.InitError InitializeVuforia(string licenseKey)
         {
-            int errorCode = initQCARiOS((int)Screen.orientation, licenseKey);
+#if ((UNITY_IPHONE || UNITY_IOS) && !UNITY_EDITOR)
+            VuforiaRenderer.RendererAPI rendererAPI = VuforiaRenderer.Instance.GetRendererAPI();
+            int errorCode = initQCARiOS((int)rendererAPI, (int)Screen.orientation, licenseKey);
+#else
+            int errorCode = 0;
+#endif
             if (errorCode >= 0)
                 InitializeSurface();
             return (VuforiaUnity.InitError)errorCode;
         }
+
+        /// <summary>
+        /// Called on start each time a new scene is loaded
+        /// </summary>
+        public void StartScene()
+        { }
 
         /// <summary>
         /// Called from Update, checks for various life cycle events that need to be forwarded
@@ -104,17 +120,22 @@ namespace Vuforia
         {
             mScreenOrientation = Screen.orientation;
             SurfaceUtilities.SetSurfaceOrientation(mScreenOrientation);
-            // set the native orientation (only required on iOS)
+            // set the native orientation (only required on iOS and WSA)
+#if ((UNITY_IPHONE || UNITY_IOS) && !UNITY_EDITOR)
             setSurfaceOrientationiOS((int) mScreenOrientation);
+#endif
         }
 
+#if ((UNITY_IPHONE || UNITY_IOS) && !UNITY_EDITOR)
         [DllImport("__Internal")]
         private static extern void setPlatFormNative();
 
         [DllImport("__Internal")]
-        private static extern int initQCARiOS(int screenOrientation, string licenseKey);
+        private static extern int initQCARiOS(int rendererAPI, int screenOrientation, string licenseKey);
 
         [DllImport("__Internal")]
         private static extern void setSurfaceOrientationiOS(int screenOrientation);
+#endif
+
     }
 }
